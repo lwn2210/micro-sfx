@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>micro-sfx | Universal Zero-Asset Procedural Audio</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎛️</text></svg>">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card: #131c2e;
+      --card-border: #1e2d4a;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.25);
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    .header {
+      text-align: center;
+      max-width: 680px;
+      margin-bottom: 36px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 999px;
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #ffffff 40%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p.lead {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+    .controls-panel {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 28px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      padding: 12px 24px;
+      border-radius: 12px;
+    }
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    .control-item input[type="range"] {
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      width: 100%;
+      max-width: 860px;
+      margin-bottom: 40px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      cursor: pointer;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px var(--accent-glow);
+    }
+    .card:active {
+      transform: translateY(0) scale(0.98);
+    }
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .card-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin-bottom: 14px;
+    }
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      margin-top: auto;
+    }
+    .btn-action {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: var(--text-muted);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: var(--font-mono);
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      flex: 1;
+    }
+    .btn-action:hover {
+      color: #fff;
+      background: #334155;
+      border-color: var(--accent);
+    }
+    .code-box {
+      width: 100%;
+      max-width: 860px;
+      background: #020617;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 40px;
+    }
+    .code-box pre {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: #38bdf8;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+    footer {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-align: center;
+      margin-top: auto;
+      padding-top: 20px;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="badge">Zero Asset Downloads · Zero Dependencies</div>
+    <h1>micro-sfx Studio</h1>
+    <p class="lead">
+      Generate, preview, customize, and export procedural game & UI audio in real-time. Built for Web, React Native, Unity, Godot, iOS, and Android.
+    </p>
+  </div>
+
+  <div class="controls-panel">
+    <div class="control-item">
+      <span>Pitch:</span>
+      <input type="range" id="pitchSlider" min="0.5" max="2.0" step="0.05" value="1.0">
+      <span id="pitchVal" style="font-family: var(--font-mono); min-width: 38px;">1.0x</span>
+    </div>
+    <div class="control-item">
+      <span>Volume:</span>
+      <input type="range" id="volSlider" min="0.1" max="1.5" step="0.05" value="1.0">
+      <span id="volVal" style="font-family: var(--font-mono); min-width: 38px;">1.0x</span>
+    </div>
+  </div>
+
+  <div class="grid" id="presetGrid">
+    <!-- Cards will be populated by JS -->
+  </div>
+
+  <div class="code-box">
+    <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px;">
+      Quick Integration
+    </div>
+    <pre id="codePreview">import { sfx } from 'micro-sfx';
+
+button.addEventListener('click', () => sfx.click());
+onCollectCoin(() => sfx.coin({ pitch: 1.2 }));</pre>
+  </div>
+
+  <footer>
+    <p>Released under MIT License · Maintained by <a href="https://github.com/lwn2210/micro-sfx" target="_blank">lwn2210</a></p>
+  </footer>
+
+  <script type="module">
+    // Built-in presets definitions matching core library
+    const PRESETS = [
+      { id: 'coin', name: 'Coin / Gem', icon: '🪙', wave: 'square', freq: '987Hz ➔ 1318Hz', dur: 0.35, desc: 'Two-tone retro chime' },
+      { id: 'laser', name: 'Laser Blaster', icon: '🔫', wave: 'sawtooth', freq: '880Hz ➔ 110Hz', dur: 0.17, desc: 'Downward frequency sweep' },
+      { id: 'jump', name: 'Character Jump', icon: '🦘', wave: 'square', freq: '150Hz ➔ 600Hz', dur: 0.20, desc: 'Upward arcade slide' },
+      { id: 'explosion', name: 'Explosion', icon: '💥', wave: 'noise', freq: 'Lowpass 800Hz', dur: 0.55, desc: 'Decaying filtered noise' },
+      { id: 'click', name: 'UI Pop / Click', icon: '🔘', wave: 'sine', freq: '500Hz ➔ 200Hz', dur: 0.04, desc: 'Instant tactile feedback' },
+      { id: 'hit', name: 'Damage / Impact', icon: '🥊', wave: 'sawtooth', freq: '220Hz ➔ 60Hz', dur: 0.14, desc: 'Low crunch transient' },
+      { id: 'powerup', name: 'Power-Up', icon: '⚡', wave: 'triangle', freq: '330Hz ➔ 880Hz', dur: 0.35, desc: 'Warm ascending sweep' },
+      { id: 'select', name: 'Menu Select', icon: '✨', wave: 'sine', freq: '660Hz Steady', dur: 0.07, desc: 'Subtle clean ping' }
+    ];
+
+    let audioCtx = null;
+    function getCtx() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    const pitchSlider = document.getElementById('pitchSlider');
+    const pitchVal = document.getElementById('pitchVal');
+    const volSlider = document.getElementById('volSlider');
+    const volVal = document.getElementById('volVal');
+    const grid = document.getElementById('presetGrid');
+
+    pitchSlider.addEventListener('input', (e) => pitchVal.textContent = `${parseFloat(e.target.value).toFixed(2)}x`);
+    volSlider.addEventListener('input', (e) => volVal.textContent = `${parseFloat(e.target.value).toFixed(2)}x`);
+
+    function playPreset(id) {
+      const pitch = parseFloat(pitchSlider.value);
+      const vol = parseFloat(volSlider.value);
+      const ctx = getCtx();
+      const t = ctx.currentTime;
+      const gain = ctx.createGain();
+      gain.connect(ctx.destination);
+
+      if (id === 'coin') {
+        const osc = ctx.createOscillator();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(987.77 * pitch, t);
+        osc.frequency.setValueAtTime(1318.51 * pitch, t + 0.08);
+        gain.gain.setValueAtTime(0.2 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+        osc.connect(gain);
+        osc.start(t);
+        osc.stop(t + 0.35);
+      } else if (id === 'laser') {
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(880 * pitch, t);
+        osc.frequency.exponentialRampToValueAtTime(110 * pitch, t + 0.15);
+        gain.gain.setValueAtTime(0.25 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+        osc.connect(gain);
+        osc.start(t);
+        osc.stop(t + 0.15);
+      } else if (id === 'jump') {
+        const osc = ctx.createOscillator();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(150 * pitch, t);
+        osc.frequency.exponentialRampToValueAtTime(600 * pitch, t + 0.18);
+        gain.gain.setValueAtTime(0.2 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+        osc.connect(gain);
+        osc.start(t);
+        osc.stop(t + 0.18);
+      } else if (id === 'explosion') {
+        const dur = 0.55;
+        const bSize = ctx.sampleRate * dur;
+        const buf = ctx.createBuffer(1, bSize, ctx.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < bSize; i++) d[i] = Math.random() * 2 - 1;
+        const noise = ctx.createBufferSource();
+        noise.buffer = buf;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(800 * pitch, t);
+        filter.frequency.exponentialRampToValueAtTime(40, t + dur);
+        gain.gain.setValueAtTime(0.35 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+        noise.connect(filter);
+        filter.connect(gain);
+        noise.start(t);
+      } else if (id === 'click') {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(500 * pitch, t);
+        osc.frequency.exponentialRampToValueAtTime(200 * pitch, t + 0.03);
+        gain.gain.setValueAtTime(0.3 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+        osc.connect(gain);
+        osc.start(t);
+        osc.stop(t + 0.03);
+      } else if (id === 'hit') {
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220 * pitch, t);
+        osc.frequency.exponentialRampToValueAtTime(60 * pitch, t + 0.12);
+        gain.gain.setValueAtTime(0.3 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+        osc.connect(gain);
+        osc.start(t);
+        osc.stop(t + 0.12);
+      } else if (id === 'powerup') {
+        const osc = ctx.createOscillator();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(330 * pitch, t);
+        osc.frequency.exponentialRampToValueAtTime(880 * pitch, t + 0.3);
+        gain.gain.setValueAtTime(0.25 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+        osc.connect(gain);
+        osc.start(t);
+        osc.stop(t + 0.35);
+      } else if (id === 'select') {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(660 * pitch, t);
+        gain.gain.setValueAtTime(0.25 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+        osc.connect(gain);
+        osc.start(t);
+        osc.stop(t + 0.07);
+      }
+    }
+
+    // Render cards
+    PRESETS.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-icon">${p.icon}</div>
+        <div class="card-title">${p.name}</div>
+        <div class="card-meta">${p.wave} · ${p.freq}</div>
+        <div class="card-actions">
+          <button class="btn-action" onclick="event.stopPropagation(); window.copyCode('${p.id}')">Copy TS</button>
+        </div>
+      `;
+      card.addEventListener('click', () => playPreset(p.id));
+      grid.appendChild(card);
+    });
+
+    window.copyCode = function(id) {
+      const p = parseFloat(pitchSlider.value);
+      const v = parseFloat(volSlider.value);
+      const code = (p === 1.0 && v === 1.0) 
+        ? `sfx.${id}();` 
+        : `sfx.${id}({ pitch: ${p}, volume: ${v} });`;
+      navigator.clipboard.writeText(code);
+      alert(`Copied: ${code}`);
+    };
+  </script>
+</body>
+</html>

@@ -1,10 +1,11 @@
 import { PRESETS } from './presets';
 import { playWebAudio, generatePCM, getAudioContext } from './core/synth';
+import { encodeWAV, createWAVBlob } from './core/wav';
 import { SoundSpec, PlayOptions } from './types';
 
 export * from './types';
 export * from './presets';
-export { playWebAudio, generatePCM, getAudioContext };
+export { playWebAudio, generatePCM, getAudioContext, encodeWAV, createWAVBlob };
 
 export interface SFXInstance {
   play(nameOrSpec: string | SoundSpec, options?: PlayOptions): void;
@@ -17,6 +18,8 @@ export interface SFXInstance {
   powerup(options?: PlayOptions): void;
   select(options?: PlayOptions): void;
   generatePCM(nameOrSpec: string | SoundSpec, options?: PlayOptions, sampleRate?: number): Int16Array;
+  encodeWAV(nameOrSpec: string | SoundSpec, options?: PlayOptions, sampleRate?: number): Uint8Array;
+  createWAVBlob(nameOrSpec: string | SoundSpec, options?: PlayOptions, sampleRate?: number): Blob;
 }
 
 function resolveSpec(nameOrSpec: string | SoundSpec): SoundSpec {
@@ -71,6 +74,17 @@ export const sfx: SFXInstance = {
   generatePCM(nameOrSpec: string | SoundSpec, options?: PlayOptions, sampleRate = 44100): Int16Array {
     const spec = resolveSpec(nameOrSpec);
     return generatePCM(spec, options, sampleRate);
+  },
+
+  encodeWAV(nameOrSpec: string | SoundSpec, options?: PlayOptions, sampleRate = 44100): Uint8Array {
+    const spec = resolveSpec(nameOrSpec);
+    const pcm = generatePCM(spec, options, sampleRate);
+    return encodeWAV(pcm, sampleRate);
+  },
+
+  createWAVBlob(nameOrSpec: string | SoundSpec, options?: PlayOptions, sampleRate = 44100): Blob {
+    const spec = resolveSpec(nameOrSpec);
+    return createWAVBlob(spec, options, sampleRate);
   }
 };
 
