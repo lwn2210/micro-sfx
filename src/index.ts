@@ -17,6 +17,10 @@ export interface SFXInstance {
   explosion(options?: PlayOptions): void;
   hit(options?: PlayOptions): void;
   powerup(options?: PlayOptions): void;
+  // Combat & Sci-Fi Expansions
+  shield(options?: PlayOptions): void;
+  missile(options?: PlayOptions): void;
+  zap(options?: PlayOptions): void;
   // UI & Interaction
   click(options?: PlayOptions): void;
   select(options?: PlayOptions): void;
@@ -60,6 +64,11 @@ export const sfx: SFXInstance = {
   explosion(options?: PlayOptions): void { playWebAudio(PRESETS.explosion, options); },
   hit(options?: PlayOptions): void { playWebAudio(PRESETS.hit, options); },
   powerup(options?: PlayOptions): void { playWebAudio(PRESETS.powerup, options); },
+
+  // Combat & Sci-Fi Expansions
+  shield(options?: PlayOptions): void { playWebAudio(PRESETS.shield, options); },
+  missile(options?: PlayOptions): void { playWebAudio(PRESETS.missile, options); },
+  zap(options?: PlayOptions): void { playWebAudio(PRESETS.zap, options); },
 
   // UI & Interaction
   click(options?: PlayOptions): void { playWebAudio(PRESETS.click, options); },

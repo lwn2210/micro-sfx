@@ -7,6 +7,7 @@ console.log('🧪 Running micro-sfx test suite...\n');
 console.log('Test 1: Checking built-in presets...');
 const requiredPresets = [
   'coin', 'laser', 'jump', 'explosion', 'hit', 'powerup',
+  'shield', 'missile', 'zap',
   'click', 'select', 'blip', 'tap', 'toggle',
   'success', 'error', 'notification', 'badge', 'warp'
 ];

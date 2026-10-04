@@ -63,6 +63,38 @@ export const PRESETS: Record<string, SoundSpec> = {
     volume: 0.25
   },
 
+  // --- Sci-Fi & Combat Expansions (Daily Drop #1) ---
+  shield: {
+    name: 'shield',
+    waveform: 'sine',
+    frequency: 220,
+    frequencyJump: { time: 0.06, to: 440 },
+    attack: 0.01,
+    decay: 0.25,
+    release: 0.08,
+    volume: 0.28
+  },
+  missile: {
+    name: 'missile',
+    waveform: 'sawtooth',
+    frequency: 140,
+    frequencyEnd: 480,
+    attack: 0.04,
+    decay: 0.28,
+    release: 0.06,
+    volume: 0.26
+  },
+  zap: {
+    name: 'zap',
+    waveform: 'sawtooth',
+    frequency: 1200,
+    frequencyEnd: 240,
+    attack: 0.002,
+    decay: 0.08,
+    release: 0.01,
+    volume: 0.24
+  },
+
   // --- UI & Web/Mobile Interactions ---
   click: {
     name: 'click',

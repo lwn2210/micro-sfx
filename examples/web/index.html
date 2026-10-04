@@ -434,6 +434,26 @@
       },
 
       // Retro & Game
+      // Combat & Sci-Fi Expansions (Daily Drop)
+      { 
+        id: 'shield', cat: 'retro', catLabel: 'Sci-Fi & Action', name: 'Shield Deflect', icon: '🛡️', wave: 'sine', freq: '220Hz ➔ 440Hz', 
+        desc: 'Harmonic resonant frequency barrier for shield activations and energy absorption.',
+        eventTarget: 'shieldGenerator',
+        eventDesc: 'Activate energy barrier on defense trigger'
+      },
+      { 
+        id: 'missile', cat: 'retro', catLabel: 'Sci-Fi & Action', name: 'Missile Launch', icon: '🚀', wave: 'sawtooth', freq: '140Hz ➔ 480Hz', 
+        desc: 'Deep accelerating rocket motor whistle for heavy ordinance and missile launches.',
+        eventTarget: 'missilePod',
+        eventDesc: 'Launch projectile upon target acquisition'
+      },
+      { 
+        id: 'zap', cat: 'retro', catLabel: 'Sci-Fi & Action', name: 'Electric Zap', icon: '⚡', wave: 'sawtooth', freq: '1200Hz ➔ 240Hz', 
+        desc: 'High-voltage electric discharge chirp for stun guns, shock traps, and plasma arcs.',
+        eventTarget: 'zapArc',
+        eventDesc: 'Discharge electric arc on impact'
+      },
+
       { 
         id: 'coin', cat: 'retro', catLabel: 'Retro Arcade', name: 'Coin / Gem', icon: '🪙', wave: 'square', freq: '987Hz ➔ 1318Hz', 
         desc: 'Classic two-tone arcade coin pickup arpeggio.',
@@ -505,7 +525,37 @@
       const gain = ctx.createGain();
       gain.connect(ctx.destination);
 
-      if (id === 'tap') {
+      if (id === 'shield') {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(220 * pitch, t);
+        osc.frequency.setValueAtTime(440 * pitch, t + 0.06);
+        gain.gain.setValueAtTime(0.28 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
+        osc.connect(gain);
+        osc.start(t);
+        osc.stop(t + 0.32);
+      } else if (id === 'missile') {
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140 * pitch, t);
+        osc.frequency.exponentialRampToValueAtTime(480 * pitch, t + 0.28);
+        gain.gain.setValueAtTime(0.26 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.34);
+        osc.connect(gain);
+        osc.start(t);
+        osc.stop(t + 0.34);
+      } else if (id === 'zap') {
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(1200 * pitch, t);
+        osc.frequency.exponentialRampToValueAtTime(240 * pitch, t + 0.08);
+        gain.gain.setValueAtTime(0.24 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+        osc.connect(gain);
+        osc.start(t);
+        osc.stop(t + 0.09);
+      } else       if (id === 'tap') {
         const osc = ctx.createOscillator();
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(380 * pitch, t);
