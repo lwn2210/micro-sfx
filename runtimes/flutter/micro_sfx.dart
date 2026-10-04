@@ -1,5 +1,6 @@
 // MicroSFX - Zero-asset procedural audio engine for Flutter / Dart
-// Generates raw 16-bit PCM and Float32 audio samples on-the-fly.
+// Synthesizes mathematical audio on-the-fly into raw samples and RIFF WAV byte buffers.
+// Compatible with any Flutter audio plugin: audioplayers, just_audio, or flutter_sound.
 
 import 'dart:math';
 import 'dart:typed_data';
@@ -76,10 +77,34 @@ class MicroSFX {
       decay: 0.03,
       volume: 0.25,
     ),
+    'hit': SoundSpec(
+      name: 'hit',
+      waveform: Waveform.sawtooth,
+      frequency: 220.0,
+      frequencyEnd: 60.0,
+      decay: 0.12,
+      volume: 0.3,
+    ),
+    'powerup': SoundSpec(
+      name: 'powerup',
+      waveform: Waveform.triangle,
+      frequency: 330.0,
+      frequencyEnd: 880.0,
+      attack: 0.02,
+      decay: 0.3,
+      volume: 0.25,
+    ),
+    'select': SoundSpec(
+      name: 'select',
+      waveform: Waveform.sine,
+      frequency: 660.0,
+      decay: 0.06,
+      volume: 0.2,
+    ),
   };
 
-  /// Generates a Float32List of audio samples (-1.0 to 1.0)
-  static Float32List generateFloat32(String presetName, {double pitch = 1.0, double volume = 1.0}) {
+  /// Generates a 16-bit Mono PCM Int16List
+  static Int16List generatePCM(String presetName, {double pitch = 1.0, double volume = 1.0}) {
     final spec = presets[presetName.toLowerCase()];
     if (spec == null) {
       throw ArgumentError('Preset not found: $presetName');
@@ -87,7 +112,7 @@ class MicroSFX {
 
     final duration = spec.attack + spec.decay + spec.release;
     final totalSamples = (sampleRate * duration).floor();
-    final buffer = Float32List(totalSamples);
+    final buffer = Int16List(totalSamples);
 
     final baseFreq = spec.frequency * pitch;
     double currentFreq = baseFreq;
@@ -133,7 +158,51 @@ class MicroSFX {
           break;
       }
 
-      buffer[i] = sample * env * masterVol;
+      final intVal = (sample * env * masterVol * 32767.0).floor().clamp(-32768, 32767);
+      buffer[i] = intVal;
+    }
+
+    return buffer;
+  }
+
+  /// Encodes the sound into a complete standard RIFF WAV byte buffer (Uint8List).
+  /// Ready to be played directly via `audioplayers`:
+  /// `await player.play(BytesSource(MicroSFX.generateWAV('coin')))`
+  static Uint8List generateWAV(String presetName, {double pitch = 1.0, double volume = 1.0}) {
+    final pcm = generatePCM(presetName, pitch: pitch, volume: volume);
+    final dataSize = pcm.length * 2;
+    final buffer = Uint8List(44 + dataSize);
+    final bdata = ByteData.view(buffer.buffer);
+
+    void writeString(int offset, String str) {
+      for (int i = 0; i < str.length; i++) {
+        buffer[offset + i] = str.codeUnitAt(i);
+      }
+    }
+
+    // RIFF chunk
+    writeString(0, 'RIFF');
+    bdata.setUint32(4, 36 + dataSize, Endian.little);
+    writeString(8, 'WAVE');
+
+    // fmt chunk
+    writeString(12, 'fmt ');
+    bdata.setUint32(16, 16, Endian.little); // Subchunk1Size
+    bdata.setUint16(20, 1, Endian.little);  // AudioFormat (PCM)
+    bdata.setUint16(22, 1, Endian.little);  // Channels (Mono)
+    bdata.setUint32(24, sampleRate, Endian.little); // SampleRate
+    bdata.setUint32(28, sampleRate * 2, Endian.little); // ByteRate
+    bdata.setUint16(32, 2, Endian.little);  // BlockAlign
+    bdata.setUint16(34, 16, Endian.little); // BitsPerSample
+
+    // data chunk
+    writeString(36, 'data');
+    bdata.setUint32(40, dataSize, Endian.little);
+
+    // PCM samples
+    int offset = 44;
+    for (int i = 0; i < pcm.length; i++, offset += 2) {
+      bdata.setInt16(offset, pcm[i], Endian.little);
     }
 
     return buffer;
