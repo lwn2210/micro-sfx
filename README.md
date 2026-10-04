@@ -162,7 +162,7 @@ MicroSFX.play("hit", pitch: 1.0f, volume: 0.8f)
 
 ---
 
-## 🎛️ 16 Built-in Presets
+## 🎛️ 19 Built-in Presets (Daily Sound Drops)
 
 | Category | Preset | Waveform | Ideal For |
 | :--- | :--- | :--- | :--- |
@@ -190,7 +190,7 @@ MicroSFX.play("hit", pitch: 1.0f, volume: 0.8f)
 Generate and inspect sound presets directly in your terminal:
 
 ```bash
-# List all 16 presets
+# List all 19 presets
 npx micro-sfx list
 
 # Export a preset to a WAV file
