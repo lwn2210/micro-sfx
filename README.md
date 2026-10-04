@@ -6,7 +6,6 @@
 [![CI](https://github.com/lwn2210/micro-sfx/actions/workflows/ci.yml/badge.svg)](https://github.com/lwn2210/micro-sfx/actions)
 [![license](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 [![bundle size](https://img.shields.io/badge/gzipped-<2KB-brightgreen?style=flat-square)](#)
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Donate-yellow?style=flat-square&logo=buy-me-a-coffee)](#-support--community)
 
 ---
 
@@ -127,15 +126,6 @@ const pcmBuffer = sfx.generatePCM('coin');
 | `hit` | Sawtooth | Damage taken, shield hits |
 | `powerup` | Triangle | Level complete, upgrades, buffs |
 | `select` | Sine | Menu navigation, hovering |
-
----
-
-## ☕ Support & Community
-
-If you find `micro-sfx` useful in your web apps, mobile products, or games:
-
-- ⭐ **Star this repository** on GitHub!
-- ☕ **Support the project:** [Buy Me A Coffee](https://www.buymeacoffee.com)
 
 ---
 
