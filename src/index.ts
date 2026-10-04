@@ -10,14 +10,26 @@ export { playWebAudio, generatePCM, getAudioContext, encodeWAV, createWAVBlob, t
 
 export interface SFXInstance {
   play(nameOrSpec: string | SoundSpec, options?: PlayOptions): void;
+  // Retro & Action
   coin(options?: PlayOptions): void;
   laser(options?: PlayOptions): void;
   jump(options?: PlayOptions): void;
   explosion(options?: PlayOptions): void;
-  click(options?: PlayOptions): void;
   hit(options?: PlayOptions): void;
   powerup(options?: PlayOptions): void;
+  // UI & Interaction
+  click(options?: PlayOptions): void;
   select(options?: PlayOptions): void;
+  blip(options?: PlayOptions): void;
+  tap(options?: PlayOptions): void;
+  toggle(options?: PlayOptions): void;
+  // System & Feedback
+  success(options?: PlayOptions): void;
+  error(options?: PlayOptions): void;
+  notification(options?: PlayOptions): void;
+  badge(options?: PlayOptions): void;
+  warp(options?: PlayOptions): void;
+  // Generators & Helpers
   generatePCM(nameOrSpec: string | SoundSpec, options?: PlayOptions, sampleRate?: number): Int16Array;
   encodeWAV(nameOrSpec: string | SoundSpec, options?: PlayOptions, sampleRate?: number): Uint8Array;
   createWAVBlob(nameOrSpec: string | SoundSpec, options?: PlayOptions, sampleRate?: number): Blob;
@@ -41,38 +53,29 @@ export const sfx: SFXInstance = {
     playWebAudio(spec, options);
   },
 
-  coin(options?: PlayOptions): void {
-    playWebAudio(PRESETS.coin, options);
-  },
+  // Retro & Action
+  coin(options?: PlayOptions): void { playWebAudio(PRESETS.coin, options); },
+  laser(options?: PlayOptions): void { playWebAudio(PRESETS.laser, options); },
+  jump(options?: PlayOptions): void { playWebAudio(PRESETS.jump, options); },
+  explosion(options?: PlayOptions): void { playWebAudio(PRESETS.explosion, options); },
+  hit(options?: PlayOptions): void { playWebAudio(PRESETS.hit, options); },
+  powerup(options?: PlayOptions): void { playWebAudio(PRESETS.powerup, options); },
 
-  laser(options?: PlayOptions): void {
-    playWebAudio(PRESETS.laser, options);
-  },
+  // UI & Interaction
+  click(options?: PlayOptions): void { playWebAudio(PRESETS.click, options); },
+  select(options?: PlayOptions): void { playWebAudio(PRESETS.select, options); },
+  blip(options?: PlayOptions): void { playWebAudio(PRESETS.blip, options); },
+  tap(options?: PlayOptions): void { playWebAudio(PRESETS.tap, options); },
+  toggle(options?: PlayOptions): void { playWebAudio(PRESETS.toggle, options); },
 
-  jump(options?: PlayOptions): void {
-    playWebAudio(PRESETS.jump, options);
-  },
+  // System & Feedback
+  success(options?: PlayOptions): void { playWebAudio(PRESETS.success, options); },
+  error(options?: PlayOptions): void { playWebAudio(PRESETS.error, options); },
+  notification(options?: PlayOptions): void { playWebAudio(PRESETS.notification, options); },
+  badge(options?: PlayOptions): void { playWebAudio(PRESETS.badge, options); },
+  warp(options?: PlayOptions): void { playWebAudio(PRESETS.warp, options); },
 
-  explosion(options?: PlayOptions): void {
-    playWebAudio(PRESETS.explosion, options);
-  },
-
-  click(options?: PlayOptions): void {
-    playWebAudio(PRESETS.click, options);
-  },
-
-  hit(options?: PlayOptions): void {
-    playWebAudio(PRESETS.hit, options);
-  },
-
-  powerup(options?: PlayOptions): void {
-    playWebAudio(PRESETS.powerup, options);
-  },
-
-  select(options?: PlayOptions): void {
-    playWebAudio(PRESETS.select, options);
-  },
-
+  // Raw Data Buffers
   generatePCM(nameOrSpec: string | SoundSpec, options?: PlayOptions, sampleRate = 44100): Int16Array {
     const spec = resolveSpec(nameOrSpec);
     return generatePCM(spec, options, sampleRate);

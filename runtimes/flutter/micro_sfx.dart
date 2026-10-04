@@ -5,45 +5,62 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-enum Waveform { sine, square, sawtooth, triangle, noise }
+enum Waveform {
+  sine,
+  square,
+  sawtooth,
+  triangle,
+  noise,
+}
+
+class FrequencyJump {
+  final double time;
+  final double to;
+
+  const FrequencyJump({required this.time, required this.to});
+}
 
 class SoundSpec {
   final String name;
   final Waveform waveform;
   final double frequency;
-  final double frequencyEnd;
-  final double jumpTime;
-  final double jumpFrequency;
+  final double? frequencyEnd;
+  final FrequencyJump? frequencyJump;
   final double attack;
   final double decay;
+  final double sustain;
   final double release;
   final double volume;
+  final double? noiseFilterCutoff;
 
   const SoundSpec({
     required this.name,
     required this.waveform,
     required this.frequency,
-    this.frequencyEnd = 0.0,
-    this.jumpTime = 0.0,
-    this.jumpFrequency = 0.0,
+    this.frequencyEnd,
+    this.frequencyJump,
     this.attack = 0.005,
     this.decay = 0.15,
+    this.sustain = 0.0,
     this.release = 0.05,
-    this.volume = 0.3,
+    this.volume = 0.25,
+    this.noiseFilterCutoff,
   });
 }
 
 class MicroSFX {
   static const int sampleRate = 44100;
 
-  static const Map<String, SoundSpec> presets = {
+  static final Map<String, SoundSpec> presets = {
+    // --- Retro Arcade & Action ---
     'coin': SoundSpec(
       name: 'coin',
       waveform: Waveform.square,
       frequency: 987.77,
-      jumpTime: 0.08,
-      jumpFrequency: 1318.51,
+      frequencyJump: FrequencyJump(time: 0.08, to: 1318.51),
+      attack: 0.005,
       decay: 0.25,
+      release: 0.05,
       volume: 0.25,
     ),
     'laser': SoundSpec(
@@ -66,16 +83,11 @@ class MicroSFX {
       name: 'explosion',
       waveform: Waveform.noise,
       frequency: 800.0,
+      noiseFilterCutoff: 800.0,
+      attack: 0.01,
       decay: 0.45,
+      release: 0.1,
       volume: 0.35,
-    ),
-    'click': SoundSpec(
-      name: 'click',
-      waveform: Waveform.sine,
-      frequency: 500.0,
-      frequencyEnd: 200.0,
-      decay: 0.03,
-      volume: 0.25,
     ),
     'hit': SoundSpec(
       name: 'hit',
@@ -94,12 +106,87 @@ class MicroSFX {
       decay: 0.3,
       volume: 0.25,
     ),
+
+    // --- UI & Interaction ---
+    'click': SoundSpec(
+      name: 'click',
+      waveform: Waveform.sine,
+      frequency: 500.0,
+      frequencyEnd: 200.0,
+      decay: 0.03,
+      volume: 0.25,
+    ),
     'select': SoundSpec(
       name: 'select',
       waveform: Waveform.sine,
       frequency: 660.0,
       decay: 0.06,
       volume: 0.2,
+    ),
+    'blip': SoundSpec(
+      name: 'blip',
+      waveform: Waveform.sine,
+      frequency: 880.0,
+      decay: 0.025,
+      volume: 0.2,
+    ),
+    'tap': SoundSpec(
+      name: 'tap',
+      waveform: Waveform.triangle,
+      frequency: 380.0,
+      frequencyEnd: 180.0,
+      decay: 0.04,
+      volume: 0.22,
+    ),
+    'toggle': SoundSpec(
+      name: 'toggle',
+      waveform: Waveform.sine,
+      frequency: 440.0,
+      frequencyJump: FrequencyJump(time: 0.03, to: 880.0),
+      decay: 0.08,
+      volume: 0.2,
+    ),
+
+    // --- System & Feedback ---
+    'success': SoundSpec(
+      name: 'success',
+      waveform: Waveform.triangle,
+      frequency: 523.25,
+      frequencyJump: FrequencyJump(time: 0.09, to: 783.99),
+      decay: 0.32,
+      volume: 0.25,
+    ),
+    'error': SoundSpec(
+      name: 'error',
+      waveform: Waveform.sawtooth,
+      frequency: 240.0,
+      frequencyJump: FrequencyJump(time: 0.08, to: 160.0),
+      decay: 0.25,
+      volume: 0.28,
+    ),
+    'notification': SoundSpec(
+      name: 'notification',
+      waveform: Waveform.sine,
+      frequency: 587.33,
+      frequencyJump: FrequencyJump(time: 0.07, to: 880.0),
+      decay: 0.22,
+      volume: 0.22,
+    ),
+    'badge': SoundSpec(
+      name: 'badge',
+      waveform: Waveform.triangle,
+      frequency: 659.25,
+      frequencyJump: FrequencyJump(time: 0.06, to: 1046.50),
+      decay: 0.2,
+      volume: 0.25,
+    ),
+    'warp': SoundSpec(
+      name: 'warp',
+      waveform: Waveform.sine,
+      frequency: 120.0,
+      frequencyEnd: 1200.0,
+      decay: 0.35,
+      volume: 0.28,
     ),
   };
 
@@ -117,29 +204,40 @@ class MicroSFX {
     final baseFreq = spec.frequency * pitch;
     double currentFreq = baseFreq;
     double phase = 0.0;
+    final rand = Random();
+    double filterState = 0.0;
+
     final masterVol = spec.volume * volume;
-    final random = Random();
 
     for (int i = 0; i < totalSamples; i++) {
       final t = i / sampleRate;
 
-      if (spec.jumpTime > 0 && t >= spec.jumpTime) {
-        currentFreq = spec.jumpFrequency * pitch;
-      } else if (spec.frequencyEnd > 0) {
-        final progress = t / duration;
-        currentFreq = baseFreq + (spec.frequencyEnd * pitch - baseFreq) * progress;
-      }
-
+      // ADSR Envelope
       double env = 0.0;
       if (t < spec.attack) {
-        env = t / spec.attack;
+        env = spec.attack > 0 ? (t / spec.attack) : 1.0;
+      } else if (t < spec.attack + spec.decay) {
+        final dProgress = (t - spec.attack) / spec.decay;
+        env = 1.0 - dProgress * (1.0 - spec.sustain);
       } else {
-        env = max(0.0, 1.0 - (t - spec.attack) / (spec.decay + spec.release));
+        final rProgress = (t - spec.attack - spec.decay) / spec.release;
+        env = spec.sustain * (1.0 - rProgress);
+      }
+      env = env.clamp(0.0, 1.0);
+
+      // Pitch Modulation
+      if (spec.frequencyJump != null && t >= spec.frequencyJump!.time) {
+        currentFreq = spec.frequencyJump!.to * pitch;
+      } else if (spec.frequencyEnd != null) {
+        final progress = (t / duration).clamp(0.0, 1.0);
+        currentFreq = baseFreq * pow((spec.frequencyEnd! * pitch) / baseFreq, progress);
       }
 
-      phase += (2.0 * pi * currentFreq) / sampleRate;
-      double sample = 0.0;
+      // Waveform generator
+      phase += 2 * pi * currentFreq / sampleRate;
+      if (phase >= 2 * pi) phase -= 2 * pi;
 
+      double sample = 0.0;
       switch (spec.waveform) {
         case Waveform.sine:
           sample = sin(phase);
@@ -148,13 +246,19 @@ class MicroSFX {
           sample = sin(phase) >= 0 ? 1.0 : -1.0;
           break;
         case Waveform.sawtooth:
-          sample = 2.0 * (phase / (2.0 * pi) - (phase / (2.0 * pi) + 0.5).floor());
+          sample = (phase / pi) - 1.0;
           break;
         case Waveform.triangle:
-          sample = 2.0 * (2.0 * (phase / (2.0 * pi) - (phase / (2.0 * pi) + 0.5).floor())).abs() - 1.0;
+          sample = (2 / pi) * asin(sin(phase));
           break;
         case Waveform.noise:
-          sample = random.nextDouble() * 2.0 - 1.0;
+          final raw = rand.nextDouble() * 2.0 - 1.0;
+          final cutoff = spec.noiseFilterCutoff ?? baseFreq;
+          final rc = 1.0 / (2 * pi * cutoff);
+          final dt = 1.0 / sampleRate;
+          final alpha = dt / (rc + dt);
+          filterState += alpha * (raw - filterState);
+          sample = filterState;
           break;
       }
 

@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>micro-sfx | Universal Zero-Asset Procedural Audio</title>
+  <title>micro-sfx Studio — Zero-Asset Procedural Audio Engine</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎛️</text></svg>">
   <style>
     :root {
-      --bg: #090d16;
-      --card: #131c2e;
-      --card-border: #1e2d4a;
+      --bg: #030712;
+      --card: #0f172a;
+      --card-border: #1e293b;
       --accent: #38bdf8;
-      --accent-glow: rgba(56, 189, 248, 0.25);
-      --text: #f1f5f9;
+      --accent-glow: rgba(56, 189, 248, 0.3);
+      --text: #f8fafc;
       --text-muted: #94a3b8;
       --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
@@ -29,77 +29,111 @@
     }
     .header {
       text-align: center;
-      max-width: 680px;
-      margin-bottom: 36px;
+      max-width: 650px;
+      margin-bottom: 30px;
     }
     .badge {
       display: inline-block;
-      padding: 4px 12px;
       background: rgba(56, 189, 248, 0.1);
       border: 1px solid rgba(56, 189, 248, 0.3);
-      border-radius: 999px;
       color: var(--accent);
+      padding: 4px 14px;
+      border-radius: 999px;
       font-size: 0.8rem;
       font-weight: 600;
-      letter-spacing: 0.5px;
       margin-bottom: 16px;
-      text-transform: uppercase;
+      font-family: var(--font-mono);
     }
     h1 {
       font-size: 2.8rem;
       font-weight: 800;
       letter-spacing: -1px;
       margin-bottom: 12px;
-      background: linear-gradient(135deg, #ffffff 40%, var(--accent) 100%);
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
     p.lead {
       color: var(--text-muted);
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       line-height: 1.6;
     }
-    .controls-panel {
+    .links-bar {
       display: flex;
-      gap: 20px;
-      align-items: center;
-      margin-bottom: 28px;
+      gap: 12px;
+      margin-top: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .nav-btn {
+      background: #1e293b;
+      color: #38bdf8;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid #334155;
+      transition: all 0.15s ease;
+    }
+    .nav-btn:hover {
+      background: #334155;
+      border-color: #38bdf8;
+    }
+    .controls-panel {
       background: var(--card);
       border: 1px solid var(--card-border);
-      padding: 12px 24px;
       border-radius: 12px;
+      padding: 16px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 32px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
     }
     .control-item {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
       font-size: 0.9rem;
-      color: var(--text-muted);
+      font-weight: 600;
     }
     .control-item input[type="range"] {
+      width: 130px;
       cursor: pointer;
       accent-color: var(--accent);
     }
+    .category-title {
+      width: 100%;
+      max-width: 960px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin: 20px 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 14px;
       width: 100%;
-      max-width: 860px;
-      margin-bottom: 40px;
+      max-width: 960px;
+      margin-bottom: 20px;
     }
     .card {
       background: var(--card);
       border: 1px solid var(--card-border);
       border-radius: 14px;
-      padding: 20px;
+      padding: 18px;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
       cursor: pointer;
       transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
-      overflow: hidden;
     }
     .card:hover {
       border-color: var(--accent);
@@ -110,19 +144,19 @@
       transform: translateY(0) scale(0.98);
     }
     .card-icon {
-      font-size: 2rem;
-      margin-bottom: 12px;
+      font-size: 1.8rem;
+      margin-bottom: 10px;
     }
     .card-title {
-      font-size: 1.15rem;
+      font-size: 1.1rem;
       font-weight: 700;
       margin-bottom: 4px;
     }
     .card-meta {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--text-muted);
       font-family: var(--font-mono);
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
     .card-actions {
       display: flex;
@@ -152,16 +186,16 @@
     }
     .code-box {
       width: 100%;
-      max-width: 860px;
+      max-width: 960px;
       background: #020617;
       border: 1px solid var(--card-border);
       border-radius: 12px;
       padding: 20px;
-      margin-bottom: 40px;
+      margin: 30px 0;
     }
     .code-box pre {
       font-family: var(--font-mono);
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       color: #38bdf8;
       overflow-x: auto;
       line-height: 1.5;
@@ -174,44 +208,54 @@
       padding-top: 20px;
     }
     footer a { color: var(--accent); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
 
   <div class="header">
-    <div class="badge">Zero Asset Downloads · Zero Dependencies</div>
+    <div class="badge">Zero Asset Downloads · Pure Mathematical DSP</div>
     <h1>micro-sfx Studio</h1>
     <p class="lead">
-      Generate, preview, customize, and export procedural game & UI audio in real-time. Built for Web, React Native, Unity, Godot, iOS, and Android.
+      Real-time mathematical audio for Web, Mobile Web, React Native, Flutter, Unity, Godot, iOS & Android.
     </p>
+    <div class="links-bar">
+      <a href="./game/" class="nav-btn">🎮 Play CYBER-RAID 2088 Arcade</a>
+      <a href="https://github.com/lwn2210/micro-sfx" class="nav-btn" target="_blank">⭐ GitHub Repository</a>
+    </div>
   </div>
 
   <div class="controls-panel">
     <div class="control-item">
       <span>Pitch:</span>
       <input type="range" id="pitchSlider" min="0.5" max="2.0" step="0.05" value="1.0">
-      <span id="pitchVal" style="font-family: var(--font-mono); min-width: 38px;">1.0x</span>
+      <span id="pitchVal" style="font-family: var(--font-mono); min-width: 38px;">1.00x</span>
     </div>
     <div class="control-item">
       <span>Volume:</span>
       <input type="range" id="volSlider" min="0.1" max="1.5" step="0.05" value="1.0">
-      <span id="volVal" style="font-family: var(--font-mono); min-width: 38px;">1.0x</span>
+      <span id="volVal" style="font-family: var(--font-mono); min-width: 38px;">1.00x</span>
     </div>
   </div>
 
-  <div class="grid" id="presetGrid">
-    <!-- Cards will be populated by JS -->
-  </div>
+  <div class="category-title">👾 Retro Arcade & Action Presets</div>
+  <div class="grid" id="retroGrid"></div>
+
+  <div class="category-title">📱 Modern UI & Touch Presets (Mobile Web / Apps)</div>
+  <div class="grid" id="uiGrid"></div>
+
+  <div class="category-title">🔔 System Alerts & Dynamic Feedback</div>
+  <div class="grid" id="alertGrid"></div>
 
   <div class="code-box">
     <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px;">
-      Quick Integration
+      Quick 1-Line Integration (Web & Mobile Web)
     </div>
     <pre id="codePreview">import { sfx } from 'micro-sfx';
 
-button.addEventListener('click', () => sfx.click());
-onCollectCoin(() => sfx.coin({ pitch: 1.2 }));</pre>
+// Mobile Touch & UI Feedback
+button.addEventListener('pointerdown', () => sfx.tap());
+onCollectCoin(() => sfx.coin({ pitch: 1.2 }));
+onFormSuccess(() => sfx.success());</pre>
   </div>
 
   <footer>
@@ -219,16 +263,28 @@ onCollectCoin(() => sfx.coin({ pitch: 1.2 }));</pre>
   </footer>
 
   <script type="module">
-    // Built-in presets definitions matching core library
     const PRESETS = [
-      { id: 'coin', name: 'Coin / Gem', icon: '🪙', wave: 'square', freq: '987Hz ➔ 1318Hz', dur: 0.35, desc: 'Two-tone retro chime' },
-      { id: 'laser', name: 'Laser Blaster', icon: '🔫', wave: 'sawtooth', freq: '880Hz ➔ 110Hz', dur: 0.17, desc: 'Downward frequency sweep' },
-      { id: 'jump', name: 'Character Jump', icon: '🦘', wave: 'square', freq: '150Hz ➔ 600Hz', dur: 0.20, desc: 'Upward arcade slide' },
-      { id: 'explosion', name: 'Explosion', icon: '💥', wave: 'noise', freq: 'Lowpass 800Hz', dur: 0.55, desc: 'Decaying filtered noise' },
-      { id: 'click', name: 'UI Pop / Click', icon: '🔘', wave: 'sine', freq: '500Hz ➔ 200Hz', dur: 0.04, desc: 'Instant tactile feedback' },
-      { id: 'hit', name: 'Damage / Impact', icon: '🥊', wave: 'sawtooth', freq: '220Hz ➔ 60Hz', dur: 0.14, desc: 'Low crunch transient' },
-      { id: 'powerup', name: 'Power-Up', icon: '⚡', wave: 'triangle', freq: '330Hz ➔ 880Hz', dur: 0.35, desc: 'Warm ascending sweep' },
-      { id: 'select', name: 'Menu Select', icon: '✨', wave: 'sine', freq: '660Hz Steady', dur: 0.07, desc: 'Subtle clean ping' }
+      // Retro
+      { id: 'coin', cat: 'retro', name: 'Coin / Gem', icon: '🪙', wave: 'square', freq: '987Hz ➔ 1318Hz' },
+      { id: 'laser', cat: 'retro', name: 'Laser Blaster', icon: '🔫', wave: 'sawtooth', freq: '880Hz ➔ 110Hz' },
+      { id: 'jump', cat: 'retro', name: 'Jump', icon: '🦘', wave: 'square', freq: '150Hz ➔ 600Hz' },
+      { id: 'explosion', cat: 'retro', name: 'Explosion', icon: '💥', wave: 'noise', freq: 'Lowpass 800Hz' },
+      { id: 'hit', cat: 'retro', name: 'Damage Hit', icon: '🥊', wave: 'sawtooth', freq: '220Hz ➔ 60Hz' },
+      { id: 'powerup', cat: 'retro', name: 'Power-Up', icon: '⚡', wave: 'triangle', freq: '330Hz ➔ 880Hz' },
+
+      // UI
+      { id: 'click', cat: 'ui', name: 'Click Pop', icon: '🔘', wave: 'sine', freq: '500Hz ➔ 200Hz' },
+      { id: 'select', cat: 'ui', name: 'Select Ping', icon: '✨', wave: 'sine', freq: '660Hz Steady' },
+      { id: 'blip', cat: 'ui', name: 'Micro Blip', icon: '🔹', wave: 'sine', freq: '880Hz Subtle' },
+      { id: 'tap', cat: 'ui', name: 'Touch Tap', icon: '👆', wave: 'triangle', freq: '380Hz ➔ 180Hz' },
+      { id: 'toggle', cat: 'ui', name: 'Switch Toggle', icon: '🎚️', wave: 'sine', freq: '440Hz ➔ 880Hz' },
+
+      // Alerts
+      { id: 'success', cat: 'alert', name: 'Success Chime', icon: '✅', wave: 'triangle', freq: 'C5 ➔ G5 Chime' },
+      { id: 'error', cat: 'alert', name: 'Error Buzz', icon: '❌', wave: 'sawtooth', freq: '240Hz ➔ 160Hz' },
+      { id: 'notification', cat: 'alert', name: 'Notification', icon: '🔔', wave: 'sine', freq: 'D5 ➔ A5 Ping' },
+      { id: 'badge', cat: 'alert', name: 'Badge Award', icon: '🎖️', wave: 'triangle', freq: 'E5 ➔ C6 Upbeat' },
+      { id: 'warp', cat: 'alert', name: 'Warp Slide', icon: '🌀', wave: 'sine', freq: '120Hz ➔ 1200Hz' }
     ];
 
     let audioCtx = null;
@@ -242,7 +298,6 @@ onCollectCoin(() => sfx.coin({ pitch: 1.2 }));</pre>
     const pitchVal = document.getElementById('pitchVal');
     const volSlider = document.getElementById('volSlider');
     const volVal = document.getElementById('volVal');
-    const grid = document.getElementById('presetGrid');
 
     pitchSlider.addEventListener('input', (e) => pitchVal.textContent = `${parseFloat(e.target.value).toFixed(2)}x`);
     volSlider.addEventListener('input', (e) => volVal.textContent = `${parseFloat(e.target.value).toFixed(2)}x`);
@@ -302,16 +357,6 @@ onCollectCoin(() => sfx.coin({ pitch: 1.2 }));</pre>
         noise.connect(filter);
         filter.connect(gain);
         noise.start(t);
-      } else if (id === 'click') {
-        const osc = ctx.createOscillator();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(500 * pitch, t);
-        osc.frequency.exponentialRampToValueAtTime(200 * pitch, t + 0.03);
-        gain.gain.setValueAtTime(0.3 * vol, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
-        osc.connect(gain);
-        osc.start(t);
-        osc.stop(t + 0.03);
       } else if (id === 'hit') {
         const osc = ctx.createOscillator();
         osc.type = 'sawtooth';
@@ -332,19 +377,112 @@ onCollectCoin(() => sfx.coin({ pitch: 1.2 }));</pre>
         osc.connect(gain);
         osc.start(t);
         osc.stop(t + 0.35);
+      } else if (id === 'click') {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(500 * pitch, t);
+        osc.frequency.exponentialRampToValueAtTime(200 * pitch, t + 0.03);
+        gain.gain.setValueAtTime(0.3 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+        osc.connect(gain);
+        osc.start(t);
+        osc.stop(t + 0.03);
       } else if (id === 'select') {
         const osc = ctx.createOscillator();
         osc.type = 'sine';
         osc.frequency.setValueAtTime(660 * pitch, t);
-        gain.gain.setValueAtTime(0.25 * vol, t);
+        gain.gain.setValueAtTime(0.22 * vol, t);
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
         osc.connect(gain);
         osc.start(t);
         osc.stop(t + 0.07);
+      } else if (id === 'blip') {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880 * pitch, t);
+        gain.gain.setValueAtTime(0.2 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+        osc.connect(gain);
+        osc.start(t);
+        osc.stop(t + 0.03);
+      } else if (id === 'tap') {
+        const osc = ctx.createOscillator();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(380 * pitch, t);
+        osc.frequency.exponentialRampToValueAtTime(180 * pitch, t + 0.04);
+        gain.gain.setValueAtTime(0.25 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+        osc.connect(gain);
+        osc.start(t);
+        osc.stop(t + 0.05);
+      } else if (id === 'toggle') {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440 * pitch, t);
+        osc.frequency.setValueAtTime(880 * pitch, t + 0.03);
+        gain.gain.setValueAtTime(0.2 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+        osc.connect(gain);
+        osc.start(t);
+        osc.stop(t + 0.1);
+      } else if (id === 'success') {
+        const osc = ctx.createOscillator();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25 * pitch, t);
+        osc.frequency.setValueAtTime(783.99 * pitch, t + 0.09);
+        gain.gain.setValueAtTime(0.25 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+        osc.connect(gain);
+        osc.start(t);
+        osc.stop(t + 0.35);
+      } else if (id === 'error') {
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(240 * pitch, t);
+        osc.frequency.setValueAtTime(160 * pitch, t + 0.08);
+        gain.gain.setValueAtTime(0.28 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+        osc.connect(gain);
+        osc.start(t);
+        osc.stop(t + 0.3);
+      } else if (id === 'notification') {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33 * pitch, t);
+        osc.frequency.setValueAtTime(880.00 * pitch, t + 0.07);
+        gain.gain.setValueAtTime(0.22 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+        osc.connect(gain);
+        osc.start(t);
+        osc.stop(t + 0.25);
+      } else if (id === 'badge') {
+        const osc = ctx.createOscillator();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(659.25 * pitch, t);
+        osc.frequency.setValueAtTime(1046.50 * pitch, t + 0.06);
+        gain.gain.setValueAtTime(0.25 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+        osc.connect(gain);
+        osc.start(t);
+        osc.stop(t + 0.25);
+      } else if (id === 'warp') {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(120 * pitch, t);
+        osc.frequency.exponentialRampToValueAtTime(1200 * pitch, t + 0.35);
+        gain.gain.setValueAtTime(0.28 * vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+        osc.connect(gain);
+        osc.start(t);
+        osc.stop(t + 0.4);
       }
     }
 
-    // Render cards
+    // Render categorized cards
+    const retroContainer = document.getElementById('retroGrid');
+    const uiContainer = document.getElementById('uiGrid');
+    const alertContainer = document.getElementById('alertGrid');
+
     PRESETS.forEach(p => {
       const card = document.createElement('div');
       card.className = 'card';
@@ -357,7 +495,10 @@ onCollectCoin(() => sfx.coin({ pitch: 1.2 }));</pre>
         </div>
       `;
       card.addEventListener('click', () => playPreset(p.id));
-      grid.appendChild(card);
+
+      if (p.cat === 'retro') retroContainer.appendChild(card);
+      else if (p.cat === 'ui') uiContainer.appendChild(card);
+      else if (p.cat === 'alert') alertContainer.appendChild(card);
     });
 
     window.copyCode = function(id) {

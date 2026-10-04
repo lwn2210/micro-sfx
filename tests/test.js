@@ -5,11 +5,16 @@ console.log('🧪 Running micro-sfx test suite...\n');
 
 // Test 1: Presets integrity
 console.log('Test 1: Checking built-in presets...');
-const requiredPresets = ['coin', 'laser', 'jump', 'explosion', 'click', 'hit', 'powerup', 'select'];
+const requiredPresets = [
+  'coin', 'laser', 'jump', 'explosion', 'hit', 'powerup',
+  'click', 'select', 'blip', 'tap', 'toggle',
+  'success', 'error', 'notification', 'badge', 'warp'
+];
+
 for (const name of requiredPresets) {
-  assert(PRESETS[name], `Preset ${name} should exist`);
-  assert(typeof PRESETS[name].frequency === 'number', `Preset ${name} frequency should be a number`);
-  assert(PRESETS[name].waveform, `Preset ${name} waveform should be defined`);
+  assert(PRESETS[name], `Preset '${name}' should exist`);
+  assert(typeof PRESETS[name].frequency === 'number', `Preset '${name}' frequency should be a number`);
+  assert(PRESETS[name].waveform, `Preset '${name}' waveform should be defined`);
 }
 console.log(`✅ All ${requiredPresets.length} presets validated.`);
 
@@ -70,4 +75,12 @@ assert.strictEqual(magicFMT, 'fmt ', 'Subchunk should be fmt ');
 assert.strictEqual(magicDATA, 'data', 'Subchunk should be data');
 console.log(`✅ Valid WAV container produced (${wavBytes.length} bytes, compliant with RIFF specification).`);
 
-console.log('\n🎉 ALL 5 TEST SUITES PASSED SUCCESSFULLY!\n');
+// Test 6: Base64 Data URI generator
+console.log('\nTest 6: Testing toDataURI for React Native and Web...');
+const dataUri = sfx.toDataURI('coin');
+assert(typeof dataUri === 'string', 'Data URI should be a string');
+assert(dataUri.startsWith('data:audio/wav;base64,'), 'Data URI should have correct MIME header');
+assert(dataUri.length > 50, 'Data URI should contain base64 encoded audio');
+console.log('✅ Data URI generation verified.');
+
+console.log('\n🎉 ALL 6 TEST SUITES PASSED SUCCESSFULLY!\n');

@@ -1,7 +1,7 @@
 # 🎛️ micro-sfx
 
 > **Zero-asset, zero-dependency procedural sound synthesis engine.**  
-> Real-time mathematical audio for **Web, React Native, Unity, Godot, Flutter, iOS (Swift), and Android (Kotlin)**.
+> Real-time mathematical audio for **Web, Mobile Web, React Native, Unity, Godot, Flutter, iOS (Swift), Android (Kotlin), and C99**.
 
 [![CI](https://github.com/lwn2210/micro-sfx/actions/workflows/ci.yml/badge.svg)](https://github.com/lwn2210/micro-sfx/actions)
 [![license](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
@@ -21,50 +21,117 @@ Stop bundling megabytes of `.wav` and `.mp3` files for UI clicks and arcade game
 
 ---
 
-## 🚀 Interactive Studio Playground
+## 🚀 Live Interactive Demos
 
-Experience the real-time procedural sound engine directly in your browser:
-Open `examples/web/index.html` to preview all presets, adjust pitch/volume in real-time, and copy one-line integration code.
+- 🎛️ **[Web Studio Playground](https://lwn2210.github.io/micro-sfx/)** — Test presets, tweak sliders, and copy one-line code.
+- 🎮 **[CYBER-RAID 2088 Retro Game](https://lwn2210.github.io/micro-sfx/game/)** — Zero-asset arcade game powered 100% by `micro-sfx`.
 
 ---
 
-## 💻 Cross-Platform Implementation Guides
+## 💻 Integration Guides
 
-### 1. 🌐 Web & TypeScript / JavaScript
+### 1. 🌐 Web & Mobile Web (HTML5 / Vanilla JS / React / Vue / Svelte)
 
-#### Installation
+Mobile browsers (iOS Safari, Android Chrome) require a user gesture (tap/click) before playing audio. `micro-sfx` handles this automatically by unlocking the `AudioContext` on first interaction!
+
+#### A. Direct Script Tag (Zero Bundler / CDN)
+```html
+<script type="module">
+  import { sfx } from 'https://cdn.jsdelivr.net/gh/lwn2210/micro-sfx@main/dist/index.js';
+
+  // Play retro arcade sounds
+  document.getElementById('jumpBtn').addEventListener('click', () => sfx.jump());
+  document.getElementById('coinBtn').addEventListener('click', () => sfx.coin());
+
+  // Play modern UI & system feedback sounds
+  document.getElementById('clickBtn').addEventListener('click', () => sfx.click());
+  document.getElementById('likeBtn').addEventListener('click', () => sfx.badge());
+  document.getElementById('saveBtn').addEventListener('click', () => sfx.success());
+  document.getElementById('delBtn').addEventListener('click', () => sfx.error());
+</script>
+```
+
+#### B. Modern Frontend Frameworks (React, Vue, Next.js)
 ```bash
 npm install micro-sfx
 ```
 
-#### Usage
-```typescript
+```tsx
+import React from 'react';
 import { sfx } from 'micro-sfx';
 
-// Built-in presets
-button.addEventListener('click', () => sfx.click());
-onCollectCoin(() => sfx.coin());
-onPlayerJump(() => sfx.jump());
-onBombExplode(() => sfx.explosion());
-onLaserFire(() => sfx.laser());
+export function ActionButton() {
+  const handleClick = () => {
+    // 1-line instant sound with optional pitch or volume modifier
+    sfx.tap({ pitch: 1.1, volume: 0.8 });
+  };
 
-// Dynamic pitch & volume modifiers
-sfx.jump({ pitch: 1.5, volume: 0.8 });
+  return <button onClick={handleClick}>Tap Me</button>;
+}
+```
 
-// Export to RIFF WAV container (Node.js or Browser)
-const wavBytes = sfx.encodeWAV('coin');
+#### C. Mobile Web (iOS Safari / PWA Best Practices)
+In mobile web views, hook into `touchstart` or `pointerdown` for zero touch-delay audio:
+```javascript
+import { sfx } from 'micro-sfx';
+
+// Immediate sound response on touch without 300ms click delay
+window.addEventListener('touchstart', (e) => {
+  if (e.target.matches('.sfx-tap')) sfx.tap();
+  if (e.target.matches('.sfx-toggle')) sfx.toggle();
+}, { passive: true });
 ```
 
 ---
 
-### 2. 🎮 Game Engines
+### 2. ⚛️ React Native / Expo (Zero Asset Sound)
+
+No static `.wav` files needed inside your mobile `assets/` folder. Generate Base64 Data URIs on-the-fly:
+
+```typescript
+import { sfx } from 'micro-sfx';
+import { Audio } from 'expo-av';
+
+export async function playSound(preset: 'coin' | 'jump' | 'success') {
+  // Generate zero-asset data:audio/wav;base64,... URI
+  const uri = sfx.toDataURI(preset);
+
+  const { sound } = await Audio.Sound.createAsync({ uri });
+  await sound.playAsync();
+}
+```
+
+---
+
+### 3. 💙 Flutter / Dart (Byte Buffer & PCM)
+
+Drop `runtimes/flutter/micro_sfx.dart` into your project:
+
+```dart
+import 'package:audioplayers/audioplayers.dart';
+import 'micro_sfx.dart';
+
+final player = AudioPlayer();
+
+// 1. Play directly via WAV byte buffer (audioplayers)
+void onCoinPickup() async {
+  await player.play(BytesSource(MicroSFX.generateWAV('coin', pitch: 1.2)));
+}
+
+// 2. Or generate raw 16-bit Mono PCM Int16List for low-level audio streams
+final pcm = MicroSFX.generatePCM('laser');
+```
+
+---
+
+### 4. 🎮 Game Engines
 
 #### A. Unity (C#)
-Drop `runtimes/unity/MicroSFX.cs` into your Unity project assets:
+Drop `runtimes/unity/MicroSFX.cs` into your project:
 ```csharp
 using MicroSFX;
 
-// Zero audio clips needed in your Resources folder!
+// Generates procedural AudioClip dynamically
 MicroSFX.Play("coin");
 MicroSFX.Play("laser", pitch: 1.2f, volume: 0.8f);
 ```
@@ -74,58 +141,64 @@ Drop `runtimes/godot/MicroSFX.gd` into your project:
 ```gdscript
 # Synthesize real-time audio via AudioStreamGenerator
 MicroSFX.play("coin", get_tree())
-MicroSFX.play("laser", get_tree(), 1.2, 0.8)
+MicroSFX.play("explosion", get_tree(), 0.9, 1.0)
 ```
 
 ---
 
-### 3. 📱 Mobile Applications
+### 5. 🍏 iOS / macOS (Swift) & 🤖 Android (Kotlin)
 
-#### A. Flutter / Dart
-Use `runtimes/flutter/micro_sfx.dart`:
-```dart
-import 'package:micro_sfx/micro_sfx.dart';
-
-// Generates raw Float32List sample stream
-final samples = MicroSFX.generateFloat32('coin', pitch: 1.0, volume: 0.8);
-```
-
-#### B. Native iOS (Swift)
-Use `runtimes/ios/MicroSFX.swift` with native `AVAudioEngine`:
+#### Native iOS (AVAudioEngine)
 ```swift
 MicroSFX.shared.play("coin")
 MicroSFX.shared.play("laser", pitch: 1.2, volume: 0.9)
 ```
 
-#### C. Native Android (Kotlin)
-Use `runtimes/android/MicroSFX.kt` with native `AudioTrack`:
+#### Native Android (AudioTrack)
 ```kotlin
 MicroSFX.play("coin")
-MicroSFX.play("explosion", pitch: 0.9f, volume: 1.0f)
-```
-
-#### D. React Native / Expo
-```typescript
-import { sfx } from 'micro-sfx';
-
-// Returns Int16Array PCM sample buffer (44.1kHz mono)
-const pcmBuffer = sfx.generatePCM('coin');
+MicroSFX.play("hit", pitch: 1.0f, volume: 0.8f)
 ```
 
 ---
 
-## 🎛️ Built-in Presets
+## 🎛️ 16 Built-in Presets
 
-| Preset | Waveform | Ideal For |
-| :--- | :--- | :--- |
-| `coin` | Square | Coins, gems, score increases, pickups |
-| `laser` | Sawtooth | Projectiles, blasters, retro shooter guns |
-| `jump` | Square | Character jumping, bouncy platforms |
-| `explosion` | Noise | Bombs, impacts, crumbling walls |
-| `click` | Sine | UI buttons, toggles, keyboard clicks |
-| `hit` | Sawtooth | Damage taken, shield hits |
-| `powerup` | Triangle | Level complete, upgrades, buffs |
-| `select` | Sine | Menu navigation, hovering |
+| Category | Preset | Waveform | Ideal For |
+| :--- | :--- | :--- | :--- |
+| **Retro & Action** | `coin` | Square | Coins, score increases, pickups |
+| | `laser` | Sawtooth | Projectiles, blasters, retro shooter guns |
+| | `jump` | Square | Character jumping, bouncy platforms |
+| | `explosion` | Noise | Bombs, impacts, crumbling walls |
+| | `hit` | Sawtooth | Damage taken, shield hits |
+| | `powerup` | Triangle | Level complete, upgrades, buffs |
+| **UI & Touch** | `click` | Sine | Standard buttons, switches |
+| | `select` | Sine | Menu navigation, list focus |
+| | `blip` | Sine | Subtle key presses, micro-interactions |
+| | `tap` | Triangle | Mobile bottom sheet taps, card clicks |
+| | `toggle` | Sine | Switch on/off state changes |
+| **Feedback Alerts**| `success` | Triangle | Form submit ok, transaction done |
+| | `error` | Sawtooth | Validation fail, rejected action |
+| | `notification` | Sine | Push alerts, new message pings |
+| | `badge` | Triangle | Like reaction, heart award, achievement |
+| | `warp` | Sine | Teleport, screen transitions, speed boost |
+
+---
+
+## 🛠️ CLI Tool
+
+Generate and inspect sound presets directly in your terminal:
+
+```bash
+# List all 16 presets
+npx micro-sfx list
+
+# Export a preset to a WAV file
+npx micro-sfx export coin ./sounds/coin.wav --pitch 1.2
+
+# Export all presets at once
+npx micro-sfx export-all ./public/sfx
+```
 
 ---
 
