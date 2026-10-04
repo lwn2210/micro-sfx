@@ -1,4 +1,4 @@
-name: Deploy Studio to GitHub Pages
+name: Deploy Studio and Game to GitHub Pages
 
 on:
   push:
@@ -27,10 +27,12 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Prepare Studio Artifacts
+      - name: Prepare Site Artifacts
         run: |
           mkdir -p _site
           cp examples/web/index.html _site/index.html
+          mkdir -p _site/game
+          cp examples/game/index.html _site/game/index.html
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3

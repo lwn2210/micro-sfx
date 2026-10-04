@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>CYBER-RAID 2088 — 100% Zero-Asset Procedural Audio Game</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+  <style>
+    :root {
+      --bg: #030712;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.4);
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      background: var(--bg);
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #gameWrapper {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      height: 750px;
+      max-height: 95vh;
+      border: 2px solid #1e293b;
+      border-radius: 16px;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), 0 0 20px var(--accent-glow);
+      overflow: hidden;
+      background: #020617;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .hud-overlay {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+    }
+    .badge {
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid #334155;
+      padding: 6px 14px;
+      border-radius: 999px;
+      backdrop-filter: blur(4px);
+    }
+    .score-val { color: var(--accent); }
+    .combo-val { color: #facc15; }
+    .lives-val { color: #f43f5e; }
+    
+    /* Overlay screens */
+    .screen {
+      position: absolute;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.88);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      z-index: 10;
+    }
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+    }
+    p.desc {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      max-width: 400px;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    .audio-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: var(--accent);
+      margin-bottom: 24px;
+      font-family: var(--font-mono);
+    }
+    .btn-start {
+      background: var(--accent);
+      color: #020617;
+      border: none;
+      font-size: 1.1rem;
+      font-weight: 800;
+      padding: 14px 36px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px var(--accent-glow);
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .btn-start:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(56, 189, 248, 0.6);
+    }
+    .btn-start:active {
+      transform: translateY(0);
+    }
+    .instructions {
+      margin-top: 24px;
+      font-size: 0.8rem;
+      color: #64748b;
+      line-height: 1.6;
+    }
+    kbd {
+      background: #1e293b;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #cbd5e1;
+      border: 1px solid #334155;
+      font-family: var(--font-mono);
+    }
+
+    /* Mobile virtual controls */
+    .mobile-controls {
+      position: absolute;
+      bottom: 20px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .v-btn {
+      width: 64px;
+      height: 64px;
+      background: rgba(30, 41, 59, 0.65);
+      border: 1.5px solid #475569;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+      backdrop-filter: blur(4px);
+    }
+    .v-btn:active {
+      background: rgba(56, 189, 248, 0.4);
+      border-color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="gameWrapper">
+    <div class="hud-overlay">
+      <div class="badge">SCORE: <span id="hudScore" class="score-val">0</span></div>
+      <div class="badge">COMBO: <span id="hudCombo" class="combo-val">x1</span></div>
+      <div class="badge">SHIELDS: <span id="hudLives" class="lives-val">❤️❤️❤️</span></div>
+    </div>
+
+    <canvas id="gameCanvas" width="600" height="750"></canvas>
+
+    <!-- Start Screen -->
+    <div id="startScreen" class="screen">
+      <h1>CYBER RAID 2088</h1>
+      <div class="audio-tag">🎛️ Audio Powered by micro-sfx Engine</div>
+      <p class="desc">
+        Zero external audio assets. All sound effects (lasers, explosions, gems, shields, combos) are synthesized mathematically in real-time.
+      </p>
+      <button class="btn-start" onclick="startGame()">ENGAGE MISSION</button>
+      <div class="instructions">
+        Desktop: <kbd>A</kbd> <kbd>D</kbd> or <kbd>←</kbd> <kbd>→</kbd> Move · <kbd>SPACE</kbd> Fire<br>
+        Touch / Mobile: Drag or tap sides to steer & auto-fire.
+      </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameOverScreen" class="screen" style="display: none;">
+      <h1 style="color: #f43f5e;">CRITICAL FAILURE</h1>
+      <p class="desc">Your ship was pulverized in sector 7.</p>
+      <div style="font-family: var(--font-mono); font-size: 1.5rem; margin-bottom: 24px;">
+        FINAL SCORE: <span id="finalScore" style="color: var(--accent);">0</span>
+      </div>
+      <button class="btn-start" onclick="restartGame()">REDEPLOY</button>
+    </div>
+
+    <!-- Mobile Virtual Controls -->
+    <div class="mobile-controls">
+      <div style="display: flex; gap: 12px;">
+        <div class="v-btn" id="btnLeft">◀</div>
+        <div class="v-btn" id="btnRight">▶</div>
+      </div>
+      <div class="v-btn" id="btnShoot" style="background: rgba(244, 63, 94, 0.4); border-color: #f43f5e;">⚡</div>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       EMBEDDED MICRO-SFX SYNTHESIZER ENGINE (Zero Assets)
+       ========================================================================== */
+    let audioCtx = null;
+    function getAudioCtx() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    const sfx = {
+      laser(pitch = 1.0, vol = 0.25) {
+        const ac = getAudioCtx();
+        const t = ac.currentTime;
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(880 * pitch, t);
+        osc.frequency.exponentialRampToValueAtTime(110 * pitch, t + 0.12);
+        gain.gain.setValueAtTime(vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+        osc.connect(gain);
+        gain.connect(ac.destination);
+        osc.start(t);
+        osc.stop(t + 0.12);
+      },
+      explosion(pitch = 1.0, vol = 0.35) {
+        const ac = getAudioCtx();
+        const t = ac.currentTime;
+        const dur = 0.45;
+        const bSize = Math.floor(ac.sampleRate * dur);
+        const buf = ac.createBuffer(1, bSize, ac.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < bSize; i++) d[i] = Math.random() * 2 - 1;
+        const noise = ac.createBufferSource();
+        noise.buffer = buf;
+        const filter = ac.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(800 * pitch, t);
+        filter.frequency.exponentialRampToValueAtTime(50, t + dur);
+        const gain = ac.createGain();
+        gain.gain.setValueAtTime(vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ac.destination);
+        noise.start(t);
+      },
+      coin(pitch = 1.0, vol = 0.2) {
+        const ac = getAudioCtx();
+        const t = ac.currentTime;
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(987.77 * pitch, t);
+        osc.frequency.setValueAtTime(1318.51 * pitch, t + 0.08);
+        gain.gain.setValueAtTime(vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+        osc.connect(gain);
+        gain.connect(ac.destination);
+        osc.start(t);
+        osc.stop(t + 0.3);
+      },
+      hit(vol = 0.3) {
+        const ac = getAudioCtx();
+        const t = ac.currentTime;
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, t);
+        osc.frequency.exponentialRampToValueAtTime(50, t + 0.14);
+        gain.gain.setValueAtTime(vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+        osc.connect(gain);
+        gain.connect(ac.destination);
+        osc.start(t);
+        osc.stop(t + 0.14);
+      },
+      powerup() {
+        const ac = getAudioCtx();
+        const t = ac.currentTime;
+        const notes = [330, 440, 554, 659, 880];
+        notes.forEach((f, i) => {
+          const nt = t + i * 0.05;
+          const osc = ac.createOscillator();
+          const gain = ac.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(f, nt);
+          gain.gain.setValueAtTime(0.18, nt);
+          gain.gain.exponentialRampToValueAtTime(0.001, nt + 0.1);
+          osc.connect(gain);
+          gain.connect(ac.destination);
+          osc.start(nt);
+          osc.stop(nt + 0.1);
+        });
+      },
+      click() {
+        const ac = getAudioCtx();
+        const t = ac.currentTime;
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(500, t);
+        osc.frequency.exponentialRampToValueAtTime(200, t + 0.03);
+        gain.gain.setValueAtTime(0.25, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+        osc.connect(gain);
+        gain.connect(ac.destination);
+        osc.start(t);
+        osc.stop(t + 0.03);
+      }
+    };
+
+    /* ==========================================================================
+       GAME ENGINE & LOGIC
+       ========================================================================== */
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const W = canvas.width;
+    const H = canvas.height;
+
+    let gameState = 'START'; // START | PLAYING | GAMEOVER
+    let score = 0;
+    let combo = 1;
+    let lives = 3;
+    let lastComboTime = 0;
+
+    // Player
+    const player = {
+      x: W / 2,
+      y: H - 80,
+      w: 32,
+      h: 40,
+      speed: 7,
+      dx: 0,
+      lastShot: 0,
+      fireRate: 140, // ms
+      invulnerable: 0
+    };
+
+    // Arrays
+    let lasers = [];
+    let enemies = [];
+    let particles = [];
+    let gems = [];
+    let stars = [];
+
+    // Background Starfield
+    for (let i = 0; i < 70; i++) {
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        speed: 0.5 + Math.random() * 2,
+        size: Math.random() > 0.8 ? 2 : 1,
+        color: Math.random() > 0.5 ? '#38bdf8' : '#e2e8f0'
+      });
+    }
+
+    // Input handlers
+    const keys = {};
+    window.addEventListener('keydown', e => {
+      keys[e.code] = true;
+      if (e.code === 'Space' && gameState === 'PLAYING') e.preventDefault();
+    });
+    window.addEventListener('keyup', e => keys[e.code] = false);
+
+    // Mobile Virtual Touch
+    let touchLeft = false, touchRight = false, touchShoot = false;
+    const btnLeft = document.getElementById('btnLeft');
+    const btnRight = document.getElementById('btnRight');
+    const btnShoot = document.getElementById('btnShoot');
+
+    const addTouch = (el, onStart, onEnd) => {
+      el.addEventListener('touchstart', e => { e.preventDefault(); onStart(); });
+      el.addEventListener('touchend', e => { e.preventDefault(); onEnd(); });
+    };
+    addTouch(btnLeft, () => touchLeft = true, () => touchLeft = false);
+    addTouch(btnRight, () => touchRight = true, () => touchRight = false);
+    addTouch(btnShoot, () => touchShoot = true, () => touchShoot = false);
+
+    canvas.addEventListener('touchmove', e => {
+      const rect = canvas.getBoundingClientRect();
+      const touchX = e.touches[0].clientX - rect.left;
+      player.x = (touchX / rect.width) * W;
+      touchShoot = true;
+    });
+
+    function startGame() {
+      sfx.click();
+      document.getElementById('startScreen').style.display = 'none';
+      restartGame();
+    }
+
+    function restartGame() {
+      sfx.powerup();
+      document.getElementById('gameOverScreen').style.display = 'none';
+      score = 0;
+      combo = 1;
+      lives = 3;
+      player.x = W / 2;
+      lasers = [];
+      enemies = [];
+      particles = [];
+      gems = [];
+      gameState = 'PLAYING';
+      updateHUD();
+    }
+
+    function updateHUD() {
+      document.getElementById('hudScore').textContent = score;
+      document.getElementById('hudCombo').textContent = `x${combo}`;
+      document.getElementById('hudLives').textContent = '❤️'.repeat(Math.max(0, lives));
+    }
+
+    function spawnEnemy() {
+      if (gameState !== 'PLAYING') return;
+      const type = Math.random() > 0.8 ? 'heavy' : (Math.random() > 0.5 ? 'fast' : 'scout');
+      enemies.push({
+        x: 40 + Math.random() * (W - 80),
+        y: -30,
+        type: type,
+        w: type === 'heavy' ? 44 : 28,
+        h: type === 'heavy' ? 44 : 28,
+        hp: type === 'heavy' ? 4 : (type === 'fast' ? 1 : 2),
+        speed: type === 'fast' ? 4.5 : (type === 'heavy' ? 1.4 : 2.5),
+        color: type === 'heavy' ? '#a855f7' : (type === 'fast' ? '#f43f5e' : '#f97316')
+      });
+    }
+    setInterval(spawnEnemy, 900);
+
+    // Particle Burst
+    function createBurst(x, y, color, count = 12) {
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const spd = 1 + Math.random() * 5;
+        particles.push({
+          x, y,
+          vx: Math.cos(angle) * spd,
+          vy: Math.sin(angle) * spd,
+          life: 1.0,
+          decay: 0.02 + Math.random() * 0.03,
+          color
+        });
+      }
+    }
+
+    // Main Game Loop
+    let lastTime = performance.now();
+    function loop(now) {
+      const dt = now - lastTime;
+      lastTime = now;
+
+      // 1. CLEAR & DRAW BACKGROUND
+      ctx.fillStyle = '#020617';
+      ctx.fillRect(0, 0, W, H);
+
+      // Starfield
+      stars.forEach(s => {
+        s.y += s.speed;
+        if (s.y > H) s.y = 0;
+        ctx.fillStyle = s.color;
+        ctx.fillRect(s.x, s.y, s.size, s.size);
+      });
+
+      if (gameState === 'PLAYING') {
+        // Player Input Handling
+        if (keys['KeyA'] || keys['ArrowLeft'] || touchLeft) player.x -= player.speed;
+        if (keys['KeyD'] || keys['ArrowRight'] || touchRight) player.x += player.speed;
+        player.x = Math.max(20, Math.min(W - 20, player.x));
+
+        // Auto/Manual Shooting
+        if ((keys['Space'] || touchShoot || keys['KeyW'] || keys['ArrowUp']) && now - player.lastShot > player.fireRate) {
+          player.lastShot = now;
+          // Alternate laser pitch slightly based on combo streak
+          const pitch = 0.95 + Math.min(combo * 0.05, 0.6);
+          sfx.laser(pitch);
+          lasers.push({ x: player.x - 10, y: player.y - 15, w: 4, h: 14 });
+          lasers.push({ x: player.x + 10, y: player.y - 15, w: 4, h: 14 });
+        }
+
+        // Combo decay check
+        if (now - lastComboTime > 2500 && combo > 1) {
+          combo = 1;
+          updateHUD();
+        }
+
+        // Lasers update
+        for (let i = lasers.length - 1; i >= 0; i--) {
+          const l = lasers[i];
+          l.y -= 12;
+          ctx.fillStyle = '#38bdf8';
+          ctx.shadowColor = '#38bdf8';
+          ctx.shadowBlur = 8;
+          ctx.fillRect(l.x - l.w / 2, l.y, l.w, l.h);
+          ctx.shadowBlur = 0;
+          if (l.y < -20) lasers.splice(i, 1);
+        }
+
+        // Enemies update
+        for (let i = enemies.length - 1; i >= 0; i--) {
+          const e = enemies[i];
+          e.y += e.speed;
+
+          // Draw Enemy
+          ctx.fillStyle = e.color;
+          ctx.shadowColor = e.color;
+          ctx.shadowBlur = 10;
+          ctx.beginPath();
+          ctx.moveTo(e.x, e.y + e.h / 2);
+          ctx.lineTo(e.x - e.w / 2, e.y - e.h / 2);
+          ctx.lineTo(e.x + e.w / 2, e.y - e.h / 2);
+          ctx.closePath();
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          // Laser Collision
+          for (let j = lasers.length - 1; j >= 0; j--) {
+            const l = lasers[j];
+            if (Math.abs(l.x - e.x) < e.w / 2 + 4 && Math.abs(l.y - e.y) < e.h / 2) {
+              lasers.splice(j, 1);
+              e.hp--;
+              createBurst(l.x, l.y, '#38bdf8', 4);
+              if (e.hp <= 0) {
+                // Procedural pitch scales with combo!
+                const expPitch = 0.8 + Math.min(combo * 0.08, 0.8);
+                sfx.explosion(expPitch);
+                createBurst(e.x, e.y, e.color, 20);
+
+                // Spawn Gems
+                if (Math.random() > 0.4) {
+                  gems.push({ x: e.x, y: e.y, vy: 2.2 });
+                }
+
+                score += 100 * combo;
+                combo = Math.min(10, combo + 1);
+                lastComboTime = now;
+                updateHUD();
+                enemies.splice(i, 1);
+                break;
+              } else {
+                sfx.hit(0.2);
+              }
+            }
+          }
+
+          // Player Collision
+          if (enemies[i] && Math.abs(player.x - e.x) < 26 && Math.abs(player.y - e.y) < 28) {
+            if (player.invulnerable <= 0) {
+              sfx.explosion(0.6, 0.5);
+              createBurst(player.x, player.y, '#f43f5e', 25);
+              lives--;
+              combo = 1;
+              player.invulnerable = 60; // ~1 sec iframe
+              updateHUD();
+              enemies.splice(i, 1);
+
+              if (lives <= 0) {
+                gameState = 'GAMEOVER';
+                document.getElementById('finalScore').textContent = score;
+                document.getElementById('gameOverScreen').style.display = 'flex';
+              }
+            }
+          }
+
+          // Offscreen
+          if (enemies[i] && enemies[i].y > H + 40) {
+            enemies.splice(i, 1);
+          }
+        }
+
+        // Gems update
+        for (let i = gems.length - 1; i >= 0; i--) {
+          const g = gems[i];
+          g.y += g.vy;
+
+          // Draw Gem (Spinning Diamond)
+          ctx.fillStyle = '#facc15';
+          ctx.shadowColor = '#facc15';
+          ctx.shadowBlur = 8;
+          ctx.beginPath();
+          ctx.arc(g.x, g.y, 6, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          // Pickup check
+          if (Math.abs(player.x - g.x) < 28 && Math.abs(player.y - g.y) < 30) {
+            // Procedural coin pitch steps up with consecutive pickups
+            const coinPitch = 1.0 + (combo * 0.1);
+            sfx.coin(coinPitch);
+            createBurst(g.x, g.y, '#facc15', 8);
+            score += 250;
+            combo = Math.min(10, combo + 1);
+            lastComboTime = now;
+            updateHUD();
+            gems.splice(i, 1);
+          } else if (g.y > H + 20) {
+            gems.splice(i, 1);
+          }
+        }
+
+        // Player Render (Cyan Jet)
+        if (player.invulnerable > 0) {
+          player.invulnerable--;
+          if (Math.floor(player.invulnerable / 4) % 2 === 0) ctx.globalAlpha = 0.4;
+        }
+
+        ctx.fillStyle = '#38bdf8';
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.moveTo(player.x, player.y - player.h / 2);
+        ctx.lineTo(player.x - player.w / 2, player.y + player.h / 2);
+        ctx.lineTo(player.x, player.y + player.h / 4);
+        ctx.lineTo(player.x + player.w / 2, player.y + player.h / 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1.0;
+
+        // Engine Thruster Flame
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath();
+        ctx.moveTo(player.x - 6, player.y + player.h / 4 + 4);
+        ctx.lineTo(player.x + 6, player.y + player.h / 4 + 4);
+        ctx.lineTo(player.x, player.y + player.h / 2 + 10 + Math.random() * 8);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // Particles render
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= p.decay;
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+        } else {
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = p.life;
+          ctx.fillRect(p.x, p.y, 2.5, 2.5);
+          ctx.globalAlpha = 1.0;
+        }
+      }
+
+      requestAnimationFrame(loop);
+    }
+
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
