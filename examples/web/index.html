@@ -29,7 +29,7 @@
     }
     .header {
       text-align: center;
-      max-width: 700px;
+      max-width: 760px;
       margin-bottom: 24px;
     }
     .badge {
@@ -129,7 +129,7 @@
       gap: 12px;
     }
     .active-tag {
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-weight: 700;
       color: #cbd5e1;
       display: flex;
@@ -154,6 +154,7 @@
       padding: 4px;
       border-radius: 8px;
       border: 1px solid #1e293b;
+      flex-wrap: wrap;
     }
     .tab-btn {
       background: transparent;
@@ -184,7 +185,7 @@
       font-size: 0.88rem;
       color: #38bdf8;
       overflow-x: auto;
-      line-height: 1.5;
+      line-height: 1.55;
       white-space: pre-wrap;
     }
     .btn-copy-code {
@@ -310,7 +311,7 @@
     <div class="badge">Zero Asset Downloads · Pure Mathematical DSP</div>
     <h1>micro-sfx Studio</h1>
     <p class="lead">
-      Generate and preview 16 procedural sound presets. Pick any sound to see exact, copyable code tailored for Mobile Web, React/Vue, React Native, Flutter, and Game Engines.
+      Generate and preview 16 procedural sound presets. Click any sound card below to inspect and copy its exact dedicated integration code for Mobile Web, React, React Native, Flutter, and Game Engines.
     </p>
     <div class="links-bar">
       <a href="https://lwn2210.github.io/cyber-raid-2088/" class="nav-btn" target="_blank">🎮 Play CYBER-RAID 2088 Arcade</a>
@@ -335,7 +336,7 @@
   <div class="inspector-panel">
     <div class="inspector-header">
       <div class="active-tag">
-        Selected Preset: <span id="inspectPresetName" style="color: #38bdf8;">tap</span>
+        Sound: <span id="inspectPresetName" style="color: #38bdf8;">tap</span>
         <span class="badge-pill" id="inspectPresetCat">UI & Touch</span>
         <span class="badge-pill" id="inspectPresetWave">triangle</span>
       </div>
@@ -369,29 +370,109 @@
   <script type="module">
     const PRESETS = [
       // UI & Touch
-      { id: 'tap', cat: 'ui', catLabel: 'UI & Touch', name: 'Touch Tap', icon: '👆', wave: 'triangle', freq: '380Hz ➔ 180Hz', desc: 'Instant zero-delay haptic touch feedback for mobile cards and sheets.' },
-      { id: 'click', cat: 'ui', catLabel: 'UI & Touch', name: 'Click Pop', icon: '🔘', wave: 'sine', freq: '500Hz ➔ 200Hz', desc: 'Subtle clean tactile pop for standard desktop/web button presses.' },
-      { id: 'toggle', cat: 'ui', catLabel: 'UI & Touch', name: 'Switch Toggle', icon: '🎚️', wave: 'sine', freq: '440Hz ➔ 880Hz', desc: 'Upbeat two-tone toggle sound for checkboxes and state switches.' },
-      { id: 'select', cat: 'ui', catLabel: 'UI & Touch', name: 'Select Ping', icon: '✨', wave: 'sine', freq: '660Hz Steady', desc: 'High clean bell ping for tab selections and dropdown item focus.' },
-      { id: 'blip', cat: 'ui', catLabel: 'UI & Touch', name: 'Micro Blip', icon: '🔹', wave: 'sine', freq: '880Hz Subtle', desc: 'Subtle micro-interaction chirp for keypad presses or volume sliders.' },
+      { 
+        id: 'tap', cat: 'ui', catLabel: 'UI & Touch', name: 'Touch Tap', icon: '👆', wave: 'triangle', freq: '380Hz ➔ 180Hz', 
+        desc: 'Instant zero-delay haptic touch feedback for mobile cards, list rows, and bottom sheets.',
+        eventTarget: 'cardElement',
+        eventDesc: 'Immediate haptic sound on finger touch down'
+      },
+      { 
+        id: 'click', cat: 'ui', catLabel: 'UI & Touch', name: 'Click Pop', icon: '🔘', wave: 'sine', freq: '500Hz ➔ 200Hz', 
+        desc: 'Subtle clean tactile pop for standard desktop/web button presses.',
+        eventTarget: 'submitBtn',
+        eventDesc: 'Tactile confirmation click on button release'
+      },
+      { 
+        id: 'toggle', cat: 'ui', catLabel: 'UI & Touch', name: 'Switch Toggle', icon: '🎚️', wave: 'sine', freq: '440Hz ➔ 880Hz', 
+        desc: 'Upbeat two-tone toggle sound for checkboxes, dark mode toggles, and state switches.',
+        eventTarget: 'themeSwitch',
+        eventDesc: 'Feedback when toggling between active / inactive states'
+      },
+      { 
+        id: 'select', cat: 'ui', catLabel: 'UI & Touch', name: 'Select Ping', icon: '✨', wave: 'sine', freq: '660Hz Steady', 
+        desc: 'High clean bell ping for tab selections, menu items, and dropdown focus.',
+        eventTarget: 'tabNavigation',
+        eventDesc: 'Subtle ping when navigating active tabs'
+      },
+      { 
+        id: 'blip', cat: 'ui', catLabel: 'UI & Touch', name: 'Micro Blip', icon: '🔹', wave: 'sine', freq: '880Hz Subtle', 
+        desc: 'Subtle micro-interaction chirp for keypad presses or slider scrubbing.',
+        eventTarget: 'numericPad',
+        eventDesc: 'Micro-feedback on each pin key entered'
+      },
 
       // Alerts & System
-      { id: 'success', cat: 'alert', catLabel: 'System Feedback', name: 'Success Chime', icon: '✅', wave: 'triangle', freq: 'C5 ➔ G5 Chime', desc: 'Positive ascending harmonic chime for transaction complete or form submit.' },
-      { id: 'error', cat: 'alert', catLabel: 'System Feedback', name: 'Error Buzz', icon: '❌', wave: 'sawtooth', freq: '240Hz ➔ 160Hz', desc: 'Downward abrasive buzz for validation failure or rejected action.' },
-      { id: 'notification', cat: 'alert', catLabel: 'System Feedback', name: 'Notification', icon: '🔔', wave: 'sine', freq: 'D5 ➔ A5 Ping', desc: 'Pleasant two-tone bell alert for incoming push messages or toasts.' },
-      { id: 'badge', cat: 'alert', catLabel: 'System Feedback', name: 'Badge / Like', icon: '🎖️', wave: 'triangle', freq: 'E5 ➔ C6 Upbeat', desc: 'Cheerful reward tone for heart likes, trophy unlocks, and awards.' },
-      { id: 'warp', cat: 'alert', catLabel: 'System Feedback', name: 'Warp Slide', icon: '🌀', wave: 'sine', freq: '120Hz ➔ 1200Hz', desc: 'Fast sci-fi frequency sweep for modal transitions or screen warping.' },
+      { 
+        id: 'success', cat: 'alert', catLabel: 'System Feedback', name: 'Success Chime', icon: '✅', wave: 'triangle', freq: 'C5 ➔ G5 Chime', 
+        desc: 'Positive ascending harmonic chime for transaction complete or form submit.',
+        eventTarget: 'checkoutForm',
+        eventDesc: 'Payment processed and verified successfully'
+      },
+      { 
+        id: 'error', cat: 'alert', catLabel: 'System Feedback', name: 'Error Buzz', icon: '❌', wave: 'sawtooth', freq: '240Hz ➔ 160Hz', 
+        desc: 'Downward abrasive buzz for validation failure or rejected action.',
+        eventTarget: 'validationHandler',
+        eventDesc: 'Trigger alert when form validation fails'
+      },
+      { 
+        id: 'notification', cat: 'alert', catLabel: 'System Feedback', name: 'Notification', icon: '🔔', wave: 'sine', freq: 'D5 ➔ A5 Ping', 
+        desc: 'Pleasant two-tone bell alert for incoming push messages or toasts.',
+        eventTarget: 'toastManager',
+        eventDesc: 'Alert user when new incoming notification arrives'
+      },
+      { 
+        id: 'badge', cat: 'alert', catLabel: 'System Feedback', name: 'Badge / Like', icon: '🎖️', wave: 'triangle', freq: 'E5 ➔ C6 Upbeat', 
+        desc: 'Cheerful reward tone for heart likes, trophy unlocks, and awards.',
+        eventTarget: 'likeReaction',
+        eventDesc: 'Reward feedback on tap like or unlock achievement'
+      },
+      { 
+        id: 'warp', cat: 'alert', catLabel: 'System Feedback', name: 'Warp Slide', icon: '🌀', wave: 'sine', freq: '120Hz ➔ 1200Hz', 
+        desc: 'Fast sci-fi frequency sweep for modal transitions or screen warping.',
+        eventTarget: 'routeTransition',
+        eventDesc: 'Audio sweep during page transition animation'
+      },
 
       // Retro & Game
-      { id: 'coin', cat: 'retro', catLabel: 'Retro Arcade', name: 'Coin / Gem', icon: '🪙', wave: 'square', freq: '987Hz ➔ 1318Hz', desc: 'Classic two-tone arcade coin pickup arpeggio.' },
-      { id: 'laser', cat: 'retro', catLabel: 'Retro Arcade', name: 'Laser Blaster', icon: '🔫', wave: 'sawtooth', freq: '880Hz ➔ 110Hz', desc: 'Downward sweep retro space laser projectile sound.' },
-      { id: 'jump', cat: 'retro', catLabel: 'Retro Arcade', name: 'Jump', icon: '🦘', wave: 'square', freq: '150Hz ➔ 600Hz', desc: 'Upward pitch slide for platformer jumping and springboards.' },
-      { id: 'explosion', cat: 'retro', catLabel: 'Retro Arcade', name: 'Explosion', icon: '💥', wave: 'noise', freq: 'Lowpass 800Hz', desc: 'Filtered noise rumble for bomb detonations and destructions.' },
-      { id: 'hit', cat: 'retro', catLabel: 'Retro Arcade', name: 'Damage Hit', icon: '🥊', wave: 'sawtooth', freq: '220Hz ➔ 60Hz', desc: 'Low crunch transient impact for shields and player damage.' },
-      { id: 'powerup', cat: 'retro', catLabel: 'Retro Arcade', name: 'Power-Up', icon: '⚡', wave: 'triangle', freq: '330Hz ➔ 880Hz', desc: 'Warm ascending sweep for stage clears and upgrades.' }
+      { 
+        id: 'coin', cat: 'retro', catLabel: 'Retro Arcade', name: 'Coin / Gem', icon: '🪙', wave: 'square', freq: '987Hz ➔ 1318Hz', 
+        desc: 'Classic two-tone arcade coin pickup arpeggio.',
+        eventTarget: 'gemCollectible',
+        eventDesc: 'Collect coin or increase score counter'
+      },
+      { 
+        id: 'laser', cat: 'retro', catLabel: 'Retro Arcade', name: 'Laser Blaster', icon: '🔫', wave: 'sawtooth', freq: '880Hz ➔ 110Hz', 
+        desc: 'Downward sweep retro space laser projectile sound.',
+        eventTarget: 'fireTrigger',
+        eventDesc: 'Player blasters fired with dynamic streak pitch'
+      },
+      { 
+        id: 'jump', cat: 'retro', catLabel: 'Retro Arcade', name: 'Jump', icon: '🦘', wave: 'square', freq: '150Hz ➔ 600Hz', 
+        desc: 'Upward pitch slide for platformer jumping and springboards.',
+        eventTarget: 'playerPhysics',
+        eventDesc: 'Ascending slide when player launches jump'
+      },
+      { 
+        id: 'explosion', cat: 'retro', catLabel: 'Retro Arcade', name: 'Explosion', icon: '💥', wave: 'noise', freq: 'Lowpass 800Hz', 
+        desc: 'Filtered noise rumble for bomb detonations and destructions.',
+        eventTarget: 'destroyEnemy',
+        eventDesc: 'Detonate craft on target destroyed'
+      },
+      { 
+        id: 'hit', cat: 'retro', catLabel: 'Retro Arcade', name: 'Damage Hit', icon: '🥊', wave: 'sawtooth', freq: '220Hz ➔ 60Hz', 
+        desc: 'Low crunch transient impact for shields and player damage.',
+        eventTarget: 'shieldImpact',
+        eventDesc: 'Take damage on enemy bullet collision'
+      },
+      { 
+        id: 'powerup', cat: 'retro', catLabel: 'Retro Arcade', name: 'Power-Up', icon: '⚡', wave: 'triangle', freq: '330Hz ➔ 880Hz', 
+        desc: 'Warm ascending sweep for stage clears and upgrades.',
+        eventTarget: 'upgradeStation',
+        eventDesc: 'Level up or weapon upgrade collected'
+      }
     ];
 
-    let currentPreset = PRESETS[0]; // 'tap'
+    let currentPreset = PRESETS[0]; // default 'tap'
     let currentPlatform = 'mobile-web';
 
     let audioCtx = null;
@@ -592,7 +673,7 @@
       }
     }
 
-    // Dynamic Code Generator per preset and platform
+    // Dynamic, tailored code snippet generator per sound and platform
     function updateCodeSnippet() {
       const p = parseFloat(pitchSlider.value);
       const v = parseFloat(volSlider.value);
@@ -605,67 +686,80 @@
 
       let code = '';
       const id = currentPreset.id;
+      const target = currentPreset.eventTarget;
+      const desc = currentPreset.eventDesc;
 
       if (currentPlatform === 'mobile-web') {
-        code = `// Mobile Web (iOS Safari, Android Chrome, PWA)
-// Use 'pointerdown' or 'touchstart' for zero 300ms tap latency:
+        code = `// 🌐 Mobile Web Integration for '${id}' (${desc})
+// Recommendation: Use 'pointerdown' or 'touchstart' to eliminate mobile 300ms tap lag
 import { sfx } from 'micro-sfx';
 
-const btn = document.querySelector('#${id}Button');
-btn.addEventListener('pointerdown', () => {
+const ${target} = document.querySelector('#${id}Action');
+
+// Plays mathematically with 0 KB asset downloads
+${target}.addEventListener('pointerdown', (e) => {
   sfx.${id}(${modArg});
 }, { passive: true });`;
       } else if (currentPlatform === 'react') {
-        code = `// React / Next.js / Vue component
+        code = `// ⚛️ React / Next.js Component for '${id}'
 import React from 'react';
 import { sfx } from 'micro-sfx';
 
-export function ActionItem() {
-  const handleTrigger = () => {
+export function ${capitalize(id)}Button() {
+  const handleAction = () => {
+    // ${desc}
     sfx.${id}(${modArg});
   };
 
   return (
-    <button onPointerDown={handleTrigger} className="btn-action">
+    <button onPointerDown={handleAction} className="sfx-${id}-btn">
       ${currentPreset.name}
     </button>
   );
 }`;
       } else if (currentPlatform === 'react-native') {
-        code = `// React Native / Expo (Zero asset .wav files needed)
+        code = `// 📱 React Native / Expo for '${id}' (Zero asset .wav files needed)
 import { sfx } from 'micro-sfx';
 import { Audio } from 'expo-av';
 
-async function playAudio() {
-  // Generates on-the-fly Base64 data:audio/wav;base64,... URI
+// ${desc}
+async function onTrigger${capitalize(id)}() {
+  // Generates instantaneous Base64 audio URI on-the-fly
   const uri = sfx.toDataURI('${id}'${hasModifiers ? `, ${modArg}` : ''});
   const { sound } = await Audio.Sound.createAsync({ uri });
   await sound.playAsync();
 }`;
       } else if (currentPlatform === 'flutter') {
-        code = `// Flutter / Dart (using audioplayers plugin)
+        code = `// 💙 Flutter / Dart for '${id}' (via audioplayers plugin)
 import 'package:audioplayers/audioplayers.dart';
 import 'package:micro_sfx/micro_sfx.dart';
 
 final player = AudioPlayer();
 
-void triggerSound() async {
-  // Instant synthesis directly into standard RIFF WAV byte buffer
+// ${desc}
+void play${capitalize(id)}() async {
+  // Synthesize directly into raw RIFF WAV byte buffer
   final wavBytes = MicroSFX.generateWAV('${id}'${hasModifiers ? `, pitch: ${p}, volume: ${v}` : ''});
   await player.play(BytesSource(wavBytes));
 }`;
       } else if (currentPlatform === 'unity') {
-        code = `// Unity C# (MicroSFX.cs) or Godot 4 GDScript (MicroSFX.gd)
+        code = `// 🎮 Game Engines: Unity C# & Godot 4 GDScript for '${id}'
 
-// --- Unity C# ---
+// --- Unity C# (MicroSFX.cs) ---
 using MicroSFX;
+// ${desc}
 MicroSFX.Play("${id}"${hasModifiers ? `, pitch: ${p}f, volume: ${v}f` : ''});
 
-// --- Godot 4 GDScript ---
+// --- Godot 4 GDScript (MicroSFX.gd) ---
+# ${desc}
 MicroSFX.play("${id}", get_tree()${hasModifiers ? `, ${p}, ${v}` : ''})`;
       }
 
       document.getElementById('dynamicCodeOutput').textContent = code;
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
     // Render categorized cards
@@ -683,7 +777,7 @@ MicroSFX.play("${id}", get_tree()${hasModifiers ? `, ${p}, ${v}` : ''})`;
         <div class="card-meta">${p.wave} · ${p.freq}</div>
         <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 12px; line-height: 1.4;">${p.desc}</div>
         <div class="card-actions">
-          <button class="btn-action btn-play">▶ Preview</button>
+          <button class="btn-action btn-play">▶ Play</button>
           <button class="btn-action btn-inspect">Inspect</button>
         </div>
       `;
