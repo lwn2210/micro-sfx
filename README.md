@@ -162,7 +162,7 @@ MicroSFX.play("hit", pitch: 1.0f, volume: 0.8f)
 
 ---
 
-## 🎛️ 19 Built-in Presets (Daily Sound Drops)
+## 🎛️ 22 Built-in Presets (Daily Sound Drops)
 
 | Category | Preset | Waveform | Ideal For |
 | :--- | :--- | :--- | :--- |
@@ -182,6 +182,9 @@ MicroSFX.play("hit", pitch: 1.0f, volume: 0.8f)
 | | `notification` | Sine | Push alerts, new message pings |
 | | `badge` | Triangle | Like reaction, heart award, achievement |
 | | `warp` | Sine | Teleport, screen transitions, speed boost |
+| **Sci-Fi Combat #2** | `phaser` | Square | Charged beam weapons, heavy blaster fire |
+| | `thruster` | Noise | Engine rumble, continuous boost, ambient hum |
+| | `alarm` | Square | Boss warning, danger alerts, countdown signals |
 
 ---
 
@@ -190,7 +193,7 @@ MicroSFX.play("hit", pitch: 1.0f, volume: 0.8f)
 Generate and inspect sound presets directly in your terminal:
 
 ```bash
-# List all 19 presets
+# List all 22 presets
 npx micro-sfx list
 
 # Export a preset to a WAV file

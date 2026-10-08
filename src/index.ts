@@ -21,6 +21,9 @@ export interface SFXInstance {
   shield(options?: PlayOptions): void;
   missile(options?: PlayOptions): void;
   zap(options?: PlayOptions): void;
+  phaser(options?: PlayOptions): void;
+  thruster(options?: PlayOptions): void;
+  alarm(options?: PlayOptions): void;
   // UI & Interaction
   click(options?: PlayOptions): void;
   select(options?: PlayOptions): void;
@@ -69,6 +72,9 @@ export const sfx: SFXInstance = {
   shield(options?: PlayOptions): void { playWebAudio(PRESETS.shield, options); },
   missile(options?: PlayOptions): void { playWebAudio(PRESETS.missile, options); },
   zap(options?: PlayOptions): void { playWebAudio(PRESETS.zap, options); },
+  phaser(options?: PlayOptions): void { playWebAudio(PRESETS.phaser, options); },
+  thruster(options?: PlayOptions): void { playWebAudio(PRESETS.thruster, options); },
+  alarm(options?: PlayOptions): void { playWebAudio(PRESETS.alarm, options); },
 
   // UI & Interaction
   click(options?: PlayOptions): void { playWebAudio(PRESETS.click, options); },

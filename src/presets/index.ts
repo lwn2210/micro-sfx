@@ -95,6 +95,39 @@ export const PRESETS: Record<string, SoundSpec> = {
     volume: 0.24
   },
 
+  // --- Sci-Fi & Combat Expansions (Daily Drop #2) ---
+  phaser: {
+    name: 'phaser',
+    waveform: 'square',
+    frequency: 1600,
+    frequencyEnd: 320,
+    attack: 0.001,
+    decay: 0.12,
+    release: 0.015,
+    volume: 0.22
+  },
+  thruster: {
+    name: 'thruster',
+    waveform: 'noise',
+    frequency: 300,
+    noiseFilterCutoff: 500,
+    attack: 0.03,
+    sustain: 0.6,
+    decay: 0.5,
+    release: 0.15,
+    volume: 0.3
+  },
+  alarm: {
+    name: 'alarm',
+    waveform: 'square',
+    frequency: 740,
+    frequencyJump: { time: 0.12, to: 560 },
+    attack: 0.004,
+    decay: 0.28,
+    release: 0.05,
+    volume: 0.26
+  },
+
   // --- UI & Web/Mobile Interactions ---
   click: {
     name: 'click',
