@@ -36,6 +36,10 @@ export interface SFXInstance {
   notification(options?: PlayOptions): void;
   badge(options?: PlayOptions): void;
   warp(options?: PlayOptions): void;
+  // Daily Drop #3
+  heal(options?: PlayOptions): void;
+  critical(options?: PlayOptions): void;
+  teleport(options?: PlayOptions): void;
   // Generators & Helpers
   generatePCM(nameOrSpec: string | SoundSpec, options?: PlayOptions, sampleRate?: number): Int16Array;
   encodeWAV(nameOrSpec: string | SoundSpec, options?: PlayOptions, sampleRate?: number): Uint8Array;
@@ -89,6 +93,9 @@ export const sfx: SFXInstance = {
   notification(options?: PlayOptions): void { playWebAudio(PRESETS.notification, options); },
   badge(options?: PlayOptions): void { playWebAudio(PRESETS.badge, options); },
   warp(options?: PlayOptions): void { playWebAudio(PRESETS.warp, options); },
+  heal(options?: PlayOptions): void { playWebAudio(PRESETS.heal, options); },
+  critical(options?: PlayOptions): void { playWebAudio(PRESETS.critical, options); },
+  teleport(options?: PlayOptions): void { playWebAudio(PRESETS.teleport, options); },
 
   // Raw Data Buffers
   generatePCM(nameOrSpec: string | SoundSpec, options?: PlayOptions, sampleRate = 44100): Int16Array {

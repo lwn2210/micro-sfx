@@ -228,5 +228,38 @@ export const PRESETS: Record<string, SoundSpec> = {
     decay: 0.35,
     release: 0.08,
     volume: 0.28
+  },
+
+  // --- Daily Drop #3 (Gameplay & Magic/Combat) ---
+  heal: {
+    name: 'heal',
+    waveform: 'sine',
+    frequency: 523.25, // C5
+    frequencyJump: { time: 0.08, to: 659.25 }, // jump to E5 (major 3rd warmth)
+    attack: 0.03,
+    decay: 0.35,
+    release: 0.12,
+    volume: 0.26
+  },
+  critical: {
+    name: 'critical',
+    waveform: 'sawtooth',
+    frequency: 90,
+    frequencyEnd: 35,
+    attack: 0.003,
+    decay: 0.42,
+    release: 0.1,
+    volume: 0.35
+  },
+  teleport: {
+    name: 'teleport',
+    waveform: 'sine',
+    frequency: 300,
+    frequencyEnd: 950,
+    frequencyJump: { time: 0.12, to: 220 },
+    attack: 0.005,
+    decay: 0.22,
+    release: 0.05,
+    volume: 0.25
   }
 };

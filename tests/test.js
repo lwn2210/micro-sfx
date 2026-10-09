@@ -8,8 +8,10 @@ console.log('Test 1: Checking built-in presets...');
 const requiredPresets = [
   'coin', 'laser', 'jump', 'explosion', 'hit', 'powerup',
   'shield', 'missile', 'zap',
+  'phaser', 'thruster', 'alarm',
   'click', 'select', 'blip', 'tap', 'toggle',
-  'success', 'error', 'notification', 'badge', 'warp'
+  'success', 'error', 'notification', 'badge', 'warp',
+  'heal', 'critical', 'teleport'
 ];
 
 for (const name of requiredPresets) {
