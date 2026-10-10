@@ -261,5 +261,37 @@ export const PRESETS: Record<string, SoundSpec> = {
     decay: 0.22,
     release: 0.05,
     volume: 0.25
+  },
+
+  // --- Daily Drop #4 (Gameplay & Inventory UI) ---
+  'inventory-open': {
+    name: 'inventory-open',
+    waveform: 'triangle',
+    frequency: 320,
+    frequencyJump: { time: 0.05, to: 520 },
+    attack: 0.004,
+    decay: 0.18,
+    release: 0.04,
+    volume: 0.22
+  },
+  'low-ammo': {
+    name: 'low-ammo',
+    waveform: 'square',
+    frequency: 720,
+    frequencyEnd: 440,
+    attack: 0.002,
+    decay: 0.1,
+    release: 0.02,
+    volume: 0.24
+  },
+  levelup: {
+    name: 'levelup',
+    waveform: 'triangle',
+    frequency: 523.25, // C5
+    frequencyJump: { time: 0.1, to: 1046.5 }, // leap to C6 fanfare
+    attack: 0.01,
+    decay: 0.45,
+    release: 0.1,
+    volume: 0.28
   }
 };

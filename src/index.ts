@@ -40,6 +40,10 @@ export interface SFXInstance {
   heal(options?: PlayOptions): void;
   critical(options?: PlayOptions): void;
   teleport(options?: PlayOptions): void;
+  // Daily Drop #4
+  inventoryOpen(options?: PlayOptions): void;
+  lowAmmo(options?: PlayOptions): void;
+  levelup(options?: PlayOptions): void;
   // Generators & Helpers
   generatePCM(nameOrSpec: string | SoundSpec, options?: PlayOptions, sampleRate?: number): Int16Array;
   encodeWAV(nameOrSpec: string | SoundSpec, options?: PlayOptions, sampleRate?: number): Uint8Array;
@@ -96,6 +100,10 @@ export const sfx: SFXInstance = {
   heal(options?: PlayOptions): void { playWebAudio(PRESETS.heal, options); },
   critical(options?: PlayOptions): void { playWebAudio(PRESETS.critical, options); },
   teleport(options?: PlayOptions): void { playWebAudio(PRESETS.teleport, options); },
+  // Daily Drop #4
+  inventoryOpen(options?: PlayOptions): void { playWebAudio(PRESETS['inventory-open'], options); },
+  lowAmmo(options?: PlayOptions): void { playWebAudio(PRESETS['low-ammo'], options); },
+  levelup(options?: PlayOptions): void { playWebAudio(PRESETS.levelup, options); },
 
   // Raw Data Buffers
   generatePCM(nameOrSpec: string | SoundSpec, options?: PlayOptions, sampleRate = 44100): Int16Array {

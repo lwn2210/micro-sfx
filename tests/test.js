@@ -11,7 +11,8 @@ const requiredPresets = [
   'phaser', 'thruster', 'alarm',
   'click', 'select', 'blip', 'tap', 'toggle',
   'success', 'error', 'notification', 'badge', 'warp',
-  'heal', 'critical', 'teleport'
+  'heal', 'critical', 'teleport',
+  'inventory-open', 'low-ammo', 'levelup'
 ];
 
 for (const name of requiredPresets) {

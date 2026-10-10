@@ -162,7 +162,7 @@ MicroSFX.play("hit", pitch: 1.0f, volume: 0.8f)
 
 ---
 
-## 🎛️ 25 Built-in Presets (Daily Sound Drops)
+## 🎛️ 28 Built-in Presets (Daily Sound Drops)
 
 | Category | Preset | Waveform | Ideal For |
 | :--- | :--- | :--- | :--- |
@@ -188,6 +188,9 @@ MicroSFX.play("hit", pitch: 1.0f, volume: 0.8f)
 | **Daily Drop #3** | `heal` | Sine | Soft rising major arpeggio, warmth, HP pickup |
 | | `critical` | Sawtooth | Heavy low boom + metallic ring, crit hit / boss break |
 | | `teleport` | Sine | Fast rise-and-fall sweep + shimmer, blink/dash |
+| **Daily Drop #4** | `inventory-open` | Triangle | Light two-step pop, opening loot bags & menus |
+| | `low-ammo` | Square | Dry mechanical clack, magazine running empty |
+| | `levelup` | Triangle | Bright C5→C6 fanfare leap, level complete & rank ups |
 
 ---
 
@@ -196,7 +199,7 @@ MicroSFX.play("hit", pitch: 1.0f, volume: 0.8f)
 Generate and inspect sound presets directly in your terminal:
 
 ```bash
-# List all 25 presets
+# List all 28 presets
 npx micro-sfx list
 
 # Export a preset to a WAV file
